@@ -13,9 +13,11 @@
     <link rel="stylesheet" href="assets/css/Login-Form-Dark.css">
 </head>
 
-<body><nav class="navbar navbar-dark navbar-expand-lg fixed-top bg-white portfolio-navbar gradient" style="background-color: rgb(151,192,109);padding: 15.2px -21px;">
+<body>
+    <nav class="navbar navbar-dark navbar-expand-lg fixed-top bg-white portfolio-navbar gradient" style="background-color: rgb(151,192,109);padding: 15.2px -21px;">
         <div class="container"><img src="assets/img/logo.png" style="width: 75px;"><button data-toggle="collapse" class="navbar-toggler" data-target="#navbarNav"><span class="sr-only">Toggle navigation</span><span class="navbar-toggler-icon"></span></button>
-            <div class="collapse navbar-collapse" id="navbarNav">
+            <div class="collapse navbar-collapse"
+                id="navbarNav">
                 <ul class="nav navbar-nav ml-auto">
                     <li class="nav-item" role="presentation"><a class="nav-link" href="home.html">Home</a></li>
                     <li class="nav-item" role="presentation"><a class="nav-link" href="survey.html">Survey</a></li>
@@ -24,29 +26,25 @@
             </div>
         </div>
     </nav>
-    <main class="page contact-page">
+    <main class="text-center page contact-page">
         <section class="portfolio-block contact">
             <div class="container">
                 <div class="heading">
-                    <h2>My Profile</h2>
+                    <h2>View Survey Data</h2>
                 </div>
-                <form action="update-info.html">
-                    <div class="form-group"><label for="subject">Name</label><input class="form-control" type="text" id="name" disabled=""></div>
-                    <div class="form-group"><label>Address</label><textarea class="form-control" id="address" disabled=""></textarea></div>
-                    <div class="form-group"><label for="email">Email</label><input class="form-control item" type="email" id="email" disabled=""></div>
-                    <div class="form-group"><label for="message">Phone</label><input class="form-control" type="tel" disabled=""></div>
-                    <div class="form-group"><button class="btn btn-primary btn-block btn-lg" type="submit">Change Information</button></div>
-                </form>
             </div>
             <div class="container">
-                <div class="heading">
-                    <h2></h2>
+                <div class="dropdown" style="padding-bottom: 30px;"><button class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false" type="button" style="width: 30%;">Select Survey&nbsp;</button>
+                    <div class="dropdown-menu" role="menu"><a class="dropdown-item" role="presentation" href="#">First Item</a><a class="dropdown-item" role="presentation" href="#">Second Item</a><a class="dropdown-item" role="presentation" href="#">Third Item</a></div>
                 </div>
-                <form action="update-password.html">
-                    <div class="form-group"><label for="subject">Password</label><input class="form-control" type="text" id="password" disabled=""></div>
-                    <div class="form-group"><button class="btn btn-primary btn-block btn-lg" type="submit">Change Password</button></div>
-                </form>
             </div>
+            <div class="container">
+                <h4>Question:&nbsp; On a scale of 1 to 5, how would you rate your&nbsp; stress levels after starting your home garden?</h4>
+            </div>
+            <div>
+                 <div id="chart_div" class="container" style="width:80%"></div>
+            </div>          
+            <div class="container"></div>
         </section>
     </main>
     <footer class="page-footer">
@@ -59,10 +57,42 @@
     <script src="assets/bootstrap/js/bootstrap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pikaday/1.6.1/pikaday.min.js"></script>
     <script src="assets/js/theme.js"></script>
-    <script src="assets/js/jquery.min.js"></script>
-    <script src="assets/bootstrap/js/bootstrap.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pikaday/1.6.1/pikaday.min.js"></script>
-    <script src="assets/js/theme.js"></script>
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+        google.charts.load('current', {packages: ['corechart', 'bar']});
+        google.charts.setOnLoadCallback(drawBasic);
+
+        function drawBasic() {
+
+              var data = new google.visualization.DataTable();
+              data.addColumn('string', 'Responce');
+              data.addColumn('number', 'Number of People');
+           
+
+              data.addRows([
+                ['1(Low)', 11],
+                ['2', 8],
+                ['3', 7],
+                ['4', 5],
+                ['5(High)', 1]
+              ]);
+
+              var options = {
+                colors: ['#5981f8'],
+                hAxis: {
+                  title: 'Responce',
+                },
+                vAxis: {
+                  title: 'Number of Users'   
+                }
+              };
+
+              var chart = new google.visualization.ColumnChart(
+                document.getElementById('chart_div'));
+
+              chart.draw(data, options);
+            }
+    </script>
 </body>
 
 </html>

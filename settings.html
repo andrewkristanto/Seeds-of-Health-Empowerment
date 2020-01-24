@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
-    <title>CV - Brand</title>
+    <title>Settings</title>
     <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:300,400,700">
     <link rel="stylesheet" href="assets/fonts/ionicons.min.css">
@@ -18,36 +18,43 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="nav navbar-nav ml-auto">
                     <li class="nav-item" role="presentation"><a class="nav-link" href="home.html">Home</a></li>
-                    <li class="nav-item" role="presentation"><a class="nav-link" href="survey.html">Survey</a></li>
+                    <li class="nav-item" role="presentation"><a class="nav-link" href="profile.html">Profile</a></li>
+                    <li class="nav-item" role="presentation"><a class="nav-link" href="notifications.html">Notifications</a></li>
+                    <li class="nav-item" role="presentation"><a class="nav-link active  " href="survey.html">Survey</a></li>
+                    <li class="nav-item" role="presentation"><a class="nav-link" href="settings.html">Settings</a></li>
                     <li class="nav-item" role="presentation"><a class="nav-link" href="login.html">Log Out</a></li>
-                    <li class="nav-item" role="presentation"><a class="nav-link active" href="cv.html">CV</a></li>
                 </ul>
             </div>
         </div>
     </nav>
-    <main class="page cv-page">
-        <section class="portfolio-block block-intro border-bottom">
-            <h1>Settings</h1>
-        </section>
-        <section class="portfolio-block cv">
-            <p style="height: 8px;">Notifications</p>
-            <div class="btn-group" role="group"><button class="btn btn-primary" type="button">On</button><button class="btn btn-primary" type="button">Off</button></div>
-            <p style="height: 8px;">Notification Frequency</p>
-            <div class="dropdown"><button class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false" type="button">Notification Frequency</button>
-                <div class="dropdown-menu" role="menu"><a class="dropdown-item" role="presentation" href="#">Immediate</a><a class="dropdown-item" role="presentation" href="#">Every 8 hrs</a><a class="dropdown-item" role="presentation" href="#">Once a day</a></div>
-            </div>
-            <p style="height: 8px;">Notification Method</p>
-            <div class="dropdown"><button class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false" type="button">Notification Method</button>
-                <div class="dropdown-menu" role="menu"><a class="dropdown-item" role="presentation" href="#">Email</a><a class="dropdown-item" role="presentation" href="#">Text</a><a class="dropdown-item" role="presentation" href="#">Email and Text</a></div>
+    <main class="page contact-page">
+        <section class="portfolio-block contact">
+            <div class="container">
+                <div class="heading">
+                    <h2>Settings</h2>
+                </div>
+                <form><label>Notifications</label>
+                    <div class="form-group">
+                        <div class="btn-group" role="group"><button class="btn btn-primary" type="button">On</button><button class="btn btn-primary" type="button">Off</button></div>
+                    </div><label>Notification Frequency</label>
+                    <div class="form-group">
+                        <div class="dropdown show"><button class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="true" type="button">Choose one</button>
+                            <div class="dropdown-menu show" role="menu"><a class="dropdown-item" role="presentation" href="#">Immediate</a><a class="dropdown-item" role="presentation" href="#">Every 8 hours</a><a class="dropdown-item" role="presentation" href="#">Once a day</a></div>
+                        </div>
+                    </div><label>Notification Method</label>
+                    <div class="form-group">
+                        <div class="dropdown show"><button class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="true" type="button">Choose one</button>
+                            <div class="dropdown-menu show" role="menu"><a class="dropdown-item" role="presentation" href="#">Email</a><a class="dropdown-item" role="presentation" href="#">Phone</a><a class="dropdown-item" role="presentation" href="#">Email and Phone</a></div>
+                        </div>
+                    </div>
+                </form>
             </div>
         </section>
     </main>
-    <footer class="page-footer">
-        <div class="container">
-            <div class="links"><a href="#">About me</a><a href="#">Contact me</a><a href="#">Projects</a></div>
-            <div class="social-icons"><a href="#"><i class="icon ion-social-facebook"></i></a><a href="#"><i class="icon ion-social-instagram-outline"></i></a><a href="#"><i class="icon ion-social-twitter"></i></a></div>
-        </div>
-    </footer>
+    <script src="assets/js/jquery.min.js"></script>
+    <script src="assets/bootstrap/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pikaday/1.6.1/pikaday.min.js"></script>
+    <script src="assets/js/theme.js"></script>
     <script src="assets/js/jquery.min.js"></script>
     <script src="assets/bootstrap/js/bootstrap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pikaday/1.6.1/pikaday.min.js"></script>

@@ -4,13 +4,14 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
-    <title>Survey</title>
+    <title>Seeds_of_health_empowerment</title>
     <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:300,400,700">
-    <link rel="stylesheet" href="assets/fonts/ionicons.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pikaday/1.6.1/css/pikaday.min.css">
     <link rel="stylesheet" href="assets/css/Login-Form-Clean.css">
     <link rel="stylesheet" href="assets/css/Login-Form-Dark.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
 </head>
 
 <body><nav class="navbar navbar-dark navbar-expand-lg fixed-top bg-white portfolio-navbar gradient" style="background-color: rgb(151,192,109);padding: 15.2px -21px;">
@@ -18,10 +19,7 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="nav navbar-nav ml-auto">
                     <li class="nav-item" role="presentation"><a class="nav-link" href="home.html">Home</a></li>
-                    <li class="nav-item" role="presentation"><a class="nav-link" href="profile.html">Profile</a></li>
-                    <li class="nav-item" role="presentation"><a class="nav-link" href="notifications.html">Notifications</a></li>
                     <li class="nav-item" role="presentation"><a class="nav-link active" href="survey.html">Survey</a></li>
-                    <li class="nav-item" role="presentation"><a class="nav-link" href="settings.html">Settings</a></li>
                     <li class="nav-item" role="presentation"><a class="nav-link" href="login.html">Log Out</a></li>
                 </ul>
             </div>
@@ -30,23 +28,38 @@
     <main class="page lanidng-page">
         <section class="portfolio-block block-intro">
             <div class="container">
-                <h1 class="display-4" style="padding: 12px;">Surveys</h1>
+                <h1 class="display-4" style="padding: 12px;">Create Survey</h1>
             </div>
-            <form action="home.html">
+            <form action="create-survey.html">
                 <div class="container" style="padding: 25px;">
-                    <h4>On a scale of 1 to 5, how would you rate your stress levels after starting your home garden?</h4>
+                    <div class="form-group"><input class="form-control" type="text" placeholder="Survey Title"></div>
+                    <div class="form-group"><input class="form-control" type="text" placeholder="Survey Question"></div>
                 </div>
                 <div class="container">
+                    <div class="dropdown">
+                        <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Response Type
+                        </button>
+                        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                        <a class="dropdown-item" href="#">Free Answer</a>
+                        <a class="dropdown-item" href="#">Multiple Choice</a>
+                        </div>
+                    </div>
                     <div class="form-check"><input class="form-check-input" type="radio" id="formCheck-5" name="radio-group"><label class="form-check-label" for="formCheck-5">1 (Low) &nbsp;</label></div>
                     <div class="form-check"><input class="form-check-input" type="radio" id="formCheck-4" name="radio-group"><label class="form-check-label" for="formCheck-4">2 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp;</label></div>
                     <div class="form-check"><input class="form-check-input" type="radio" id="formCheck-3" name="radio-group"><label class="form-check-label" for="formCheck-3">3 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp;</label></div>
                     <div class="form-check"><input class="form-check-input" type="radio" id="formCheck-2" name="radio-group"><label class="form-check-label" for="formCheck-2">4 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp;</label></div>
                     <div class="form-check"><input class="form-check-input" type="radio" id="formCheck-1" name="radio-group"><label class="form-check-label" for="formCheck-1">5 (High)&nbsp;</label></div>
-                </div>
+                    </div>
                 <div class="container" style="padding: 25px;"><button class="btn btn-primary" type="submit" style="width: 278px;height: 30px;margin-top: 10;padding: 0;font-size: 13;">Submit</button></div>
             </form>
         </section>
     </main>
+    <script>
+        $(document).ready(function(){
+        $(".dropdown-toggle").dropdown();
+        });
+    </script>
     <script src="assets/js/jquery.min.js"></script>
     <script src="assets/bootstrap/js/bootstrap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pikaday/1.6.1/pikaday.min.js"></script>

@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
-    <title>CV - Brand</title>
+    <title>Settings</title>
     <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:300,400,700">
     <link rel="stylesheet" href="assets/fonts/ionicons.min.css">
@@ -27,20 +27,27 @@
             </div>
         </div>
     </nav>
-    <main class="page cv-page">
-        <section class="portfolio-block block-intro border-bottom">
-            <h1>Settings</h1>
-        </section>
-        <section class="portfolio-block cv">
-            <p style="height: 8px;">Notifications</p>
-            <div class="btn-group" role="group"><button class="btn btn-primary" type="button">On</button><button class="btn btn-primary" type="button">Off</button></div>
-            <p style="height: 8px;">Notification Frequency</p>
-            <div class="dropdown"><button class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false" type="button">Notification Frequency</button>
-                <div class="dropdown-menu" role="menu"><a class="dropdown-item" role="presentation" href="#">Immediate</a><a class="dropdown-item" role="presentation" href="#">Every 8 hrs</a><a class="dropdown-item" role="presentation" href="#">Once a day</a></div>
-            </div>
-            <p style="height: 8px;">Notification Method</p>
-            <div class="dropdown"><button class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false" type="button">Notification Method</button>
-                <div class="dropdown-menu" role="menu"><a class="dropdown-item" role="presentation" href="#">Email</a><a class="dropdown-item" role="presentation" href="#">Text</a><a class="dropdown-item" role="presentation" href="#">Email and Text</a></div>
+    <main class="page contact-page">
+        <section class="portfolio-block contact">
+            <div class="container">
+                <div class="heading">
+                    <h2>Settings</h2>
+                </div>
+                <form><label>Notifications</label>
+                    <div class="form-group">
+                        <div class="btn-group" role="group"><button class="btn btn-primary" type="button">On</button><button class="btn btn-primary" type="button">Off</button></div>
+                    </div><label>Notification Frequency</label>
+                    <div class="form-group">
+                        <div class="dropdown show"><button class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="true" type="button">Choose one</button>
+                            <div class="dropdown-menu show" role="menu"><a class="dropdown-item" role="presentation" href="#">Immediate</a><a class="dropdown-item" role="presentation" href="#">Every 8 hours</a><a class="dropdown-item" role="presentation" href="#">Once a day</a></div>
+                        </div>
+                    </div><label>Notification Method</label>
+                    <div class="form-group">
+                        <div class="dropdown show"><button class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="true" type="button">Choose one</button>
+                            <div class="dropdown-menu show" role="menu"><a class="dropdown-item" role="presentation" href="#">Email</a><a class="dropdown-item" role="presentation" href="#">Phone</a><a class="dropdown-item" role="presentation" href="#">Email and Phone</a></div>
+                        </div>
+                    </div>
+                </form>
             </div>
         </section>
     </main>

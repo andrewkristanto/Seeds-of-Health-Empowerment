@@ -21,7 +21,7 @@ app.use('/assets/js', express.static('js'));
 
 //starts app
 app.listen(8000, () => {
-  console.log('Example app listening on port 8000!')
+  console.log('SApp listening on port 8000!')
 });
 
 //loads home page on start up

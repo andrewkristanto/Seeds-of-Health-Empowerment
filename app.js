@@ -34,6 +34,38 @@ app.get("/logout", urlencodedParser,  function(req, res) {
     res.sendFile(path.join(__dirname,'./html/login.html'));
 });
 
+app.get("/home", urlencodedParser,  function(req, res) {
+  res.sendFile(path.join(__dirname,'./html/home.html'));
+});
+
+app.get("/profile", urlencodedParser,  function(req, res) {
+  res.sendFile(path.join(__dirname,'./html/profile.html'));
+});
+
+app.get("/notifications", urlencodedParser,  function(req, res) {
+  res.sendFile(path.join(__dirname,'./html/notifications.html'));
+});
+
+app.get("/survey", urlencodedParser,  function(req, res) {
+  res.sendFile(path.join(__dirname,'./html/survey.html'));
+});
+
+app.get("/settings", urlencodedParser,  function(req, res) {
+  res.sendFile(path.join(__dirname,'./html/settings.html'));
+});
+
+app.get("/createsurvey", urlencodedParser,  function(req, res) {
+  res.sendFile(path.join(__dirname,'./html/create-survey.html'));
+});
+
+app.get("/surveydata", urlencodedParser,  function(req, res) {
+  res.sendFile(path.join(__dirname,'./html/survey-data.html'));
+});
+
+app.get("/angelapplication", urlencodedParser,  function(req, res) {
+  res.sendFile(path.join(__dirname,'./html/angel_application.html'));
+});
+
 //authenticates login
 app.post('/',urlencodedParser,  function(req, res) {
   var username = req.body.email;

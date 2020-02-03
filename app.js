@@ -10,6 +10,10 @@ var app = express();
 app.use('/assets/css', express.static('css'));
 app.use(express.static('html'));
 app.use('/assets/js', express.static('js'));
+
+
+var cur_user = null
+var cur_role = null
 // app.use(validator());
 
 // var api = express.Router();
@@ -72,4 +76,26 @@ app.post('/',urlencodedParser,  function(req, res) {
   var password = req.body.password;
   console.log("post received: Username: %s Password: %s", username, password);
   res.sendFile(path.join(__dirname,'./html/home.html'));
+});
+
+//register
+app.post('/register',urlencodedParser,  function(req, res) {
+  var fname = req.body.fname;
+  var lname = req.body.lname;
+  var email = req.body.email;
+  var street = req.body.street;
+  var city = req.body.city;
+  var state = req.body.state;
+  var zip = req.body.zip;
+  var phone = req.body.phone;
+  var password = req.body.pass;
+  var confirmpass = req.body.confirmpass;
+  console.log("post received: First Name: %s Last Name: %s", fname, lname);
+  console.log("post received: Street: %s State: %s", street, state);
+  res.sendFile(path.join(__dirname,'./html/login.html'));
+});
+
+//pull
+app.get('/pull_profile',urlencodedParser,  function(req, res) {
+
 });

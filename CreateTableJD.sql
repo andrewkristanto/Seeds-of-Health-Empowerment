@@ -57,11 +57,13 @@ CREATE TABLE Admin (
 );
 CREATE TABLE Survey (
 	question VARCHAR(50) NOT NULL,
+	response VARCHAR(500) NOT NULL,
+	questionType VARCHAR(50) NOT NULL,
 	releaseDate Date NOT NULL,
     email VARCHAR(50) NOT NULL,
 	PRIMARY KEY (email),
 	FOREIGN KEY (email)
-		REFERENCES Gardener (email)
+		REFERENCES userww2 (email)
 			ON DELETE CASCADE
 			ON UPDATE CASCADE
 );

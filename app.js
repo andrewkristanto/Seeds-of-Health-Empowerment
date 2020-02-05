@@ -75,7 +75,32 @@ app.post('/',urlencodedParser,  function(req, res) {
   var username = req.body.email;
   var password = req.body.password;
   console.log("post received: Username: %s Password: %s", username, password);
-  res.sendFile(path.join(__dirname,'./html/home.html'));
+
+  //checks login against database
+  //
+  var request = "SELECT Email, Password FROM User WHERE Email = '" + username + "'";
+  con.query(request, function (err, result) {
+    if (err){
+      res.redirect(req.get('referer'));
+    }
+    if (!result.length){
+      console.log("invalid username")
+      res.redirect(req.get('referer'));
+    }
+    var pw_hash = result[0]["Password"];
+    var username = result[0]["Username"];
+    bcrypt.compare(password, pw_hash, function(err, res) {
+      if (res){
+        console.log("authenticated");
+        cur_user = username;
+        console.log(cur_user)
+        res.sendFile(path.join(__dirname,'./html/home.html'));
+      } else {
+        console.log("invalid password")
+        res.redirect(req.get('referer'));
+      }
+    });
+  });
 });
 
 //register

@@ -149,3 +149,12 @@ app.get('/pull_notifications', urlencodedParser, function(req, res){
       res.json(rows)
   });
 });
+
+app.get('/pull_survey', urlencodedParser, function(req, res){
+  con.query("SELECT SurveyAnswers.Question, Answer, Type from SurveyAnswers INNER JOIN SurveyData ON SurveyAnswers.Question = SurveyData.Question WHERE SurveyData.Email ='" + cur_user + "'", , function(err,rows) {
+      if (err) throw err;
+      console.log('Data received from Db:\n');
+      console.log(rows);
+      res.json(rows)
+  });
+});

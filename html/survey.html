@@ -36,18 +36,7 @@
             <div class="container">
                 <h1 class="display-4" style="padding: 12px;">Surveys</h1>
             </div>
-            <form action="home.html">
-                <div class="container" style="padding: 25px;">
-                    <h4>On a scale of 1 to 5, how would you rate your stress levels after starting your home garden?</h4>
-                </div>
-                <div class="container">
-                    <div class="form-check"><input class="form-check-input" type="radio" id="formCheck-5" name="radio-group"><label class="form-check-label" for="formCheck-5">1 (Low) &nbsp;</label></div>
-                    <div class="form-check"><input class="form-check-input" type="radio" id="formCheck-4" name="radio-group"><label class="form-check-label" for="formCheck-4">2 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp;</label></div>
-                    <div class="form-check"><input class="form-check-input" type="radio" id="formCheck-3" name="radio-group"><label class="form-check-label" for="formCheck-3">3 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp;</label></div>
-                    <div class="form-check"><input class="form-check-input" type="radio" id="formCheck-2" name="radio-group"><label class="form-check-label" for="formCheck-2">4 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp;</label></div>
-                    <div class="form-check"><input class="form-check-input" type="radio" id="formCheck-1" name="radio-group"><label class="form-check-label" for="formCheck-1">5 (High)&nbsp;</label></div>
-                </div>
-                <div class="container" style="padding: 25px;"><button class="btn btn-primary" type="submit" style="width: 278px;height: 30px;margin-top: 10;padding: 0;font-size: 13;">Submit</button></div>
+            <form action="/submit_survey" id = "survey">
             </form>
         </section>
     </main>
@@ -59,6 +48,23 @@
     <script src="assets/bootstrap/js/bootstrap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pikaday/1.6.1/pikaday.min.js"></script>
     <script src="assets/js/theme.js"></script>
+    <script>
+        $(document).ready(function(){
+            // Add code above when /pull_profile is implemented
+            $.get("/pull_survey", function(data, status){
+                res = data;
+                console.log("Arrived on Profile Page");
+                var content = "<div class=\"container\" style=\"padding: 25px;\"><h4>" + data[0].question + "</h4></div>";
+                var i = 1;
+                data.forEach((d) => {
+                    content += "<div class=\"container\"><div class=\"form-check\"><input class=\"form-check-input\" type=\"radio\" id=\"formCheck-" + i + "\" name=\"radio-group\"><label class=\"form-check-label\" for=\"formCheck-" + i + "\">" + d.answer + "</label></div>";
+                    i += 1;            
+                });
+                content += "<div class=\"container\" style=\"padding: 25px;\"><button class=\"btn btn-primary\" type=\"submit\" style=\"width: 278px;height: 30px;margin-top: 10;padding: 0;font-size: 13;\">Submit</button></div>"
+                    document.getElementById('survey').innerHTML = content;
+            });
+          });
+    </script>
 </body>
 
 </html>

@@ -115,9 +115,20 @@ app.post('/register',urlencodedParser,  function(req, res) {
   var phone = req.body.phone;
   var password = req.body.pass;
   var confirmpass = req.body.confirmpass;
-  console.log("post received: First Name: %s Last Name: %s", fname, lname);
-  console.log("post received: Street: %s State: %s", street, state);
-  res.sendFile(path.join(__dirname,'./html/login.html'));
+
+  con.query("INSERT INTO User (password, firstname, lastname, street, city, state, zip, email, role, phoneNumber) "+
+    "VALUES ('" + password + "', '" + fname + "', '" + lname + "', '" + street + "', '" + city + "', '" + state + "', '" + zip + "' , '" + email + "', '"+"Gardener"+"', '" + phone + "');", function(err,res) {
+      if (err) {
+        res.redirect(req.get('referer'));
+      } else if (res == 0) {
+        console.log("registration success");
+        res.sendFile(path.join(__dirname,'./html/login.html'));
+      } else if (res == 1) {
+        console.log("Registration attempt failed")
+        res.redirect(req.get('referer'));
+      }
+      res.json(rows)
+  });
 });
 
 //pull
@@ -131,7 +142,7 @@ app.get('/pull_profile',urlencodedParser,  function(req, res) {
 });
 
 app.get('/pull_notifications', urlencodedParser, function(req, res){
-  con.query("SELECT * FROM Notifications WHERE Email = '" + cur_user + "'", , function(err,rows) {
+  con.query("SELECT * FROM Notifications WHERE Email = '" + cur_user + "'", function(err,rows) {
       if (err) throw err;
       console.log('Data received from Db:\n');
       console.log(rows);

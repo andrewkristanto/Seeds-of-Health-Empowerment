@@ -104,3 +104,12 @@ app.get('/pull_profile',urlencodedParser,  function(req, res) {
       res.json(rows)
   });
 });
+
+app.get('/pull_notifications', urlencodedParser, function(req, res){
+  con.query("SELECT * FROM Notifications WHERE Email = '" + cur_user + "'", , function(err,rows) {
+      if (err) throw err;
+      console.log('Data received from Db:\n');
+      console.log(rows);
+      res.json(rows)
+  });
+});

@@ -1,9 +1,11 @@
 var express = require('express');
-var path = require('path')
-// var mysql = require('./js/mysql.js');
+var path = require('path');
 const bodyParser = require('body-parser');
-var urlencodedParser = bodyParser.urlencoded({ extended: false })
-const validator  = require('express-validator')
+var urlencodedParser = bodyParser.urlencoded({ extended: false });
+const validator  = require('express-validator');
+var mysql = require('mysql');
+var appDir = path.dirname(require.main.filename);
+require('dotenv').config({path: appDir + '\\.env'});
 
 var app = express();
 
@@ -11,17 +13,30 @@ app.use('/assets/css', express.static('css'));
 app.use(express.static('html'));
 app.use('/assets/js', express.static('js'));
 
-
+var con;
 var cur_user = null
 var cur_role = null
 // app.use(validator());
 
 // var api = express.Router();
 
-// while (con == null){
-//   console.log('attempting sql connection')
-//   con = mysql.connect();
-// }
+// connect to database
+while (con == null){
+  console.log('Attempting sql connection');
+  console.log(process.env.DB_HOST);
+  con = mysql.createConnection({
+    host: process.env.DB_HOST,
+    user: process.env.DB_USERNAME,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_DATABASE
+  });
+  con.connect(function(err) {
+    if (err) {
+      throw err;
+    }
+    console.log("MySQL Connected!");
+  });
+}
 
 //starts app
 app.listen(8000, () => {
@@ -151,7 +166,7 @@ app.get('/pull_notifications', urlencodedParser, function(req, res){
 });
 
 app.get('/pull_survey', urlencodedParser, function(req, res){
-  con.query("SELECT SurveyAnswers.Question, Answer, Type from SurveyAnswers INNER JOIN SurveyData ON SurveyAnswers.Question = SurveyData.Question WHERE SurveyData.Email ='" + cur_user + "'", , function(err,rows) {
+  con.query("SELECT SurveyAnswers.Question, Answer, Type from SurveyAnswers INNER JOIN SurveyData ON SurveyAnswers.Question = SurveyData.Question WHERE SurveyData.Email ='" + cur_user + "'", function(err,rows) {
       if (err) throw err;
       console.log('Data received from Db:\n');
       console.log(rows);

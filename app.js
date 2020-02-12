@@ -23,7 +23,6 @@ var cur_role = null
 // connect to database
 while (con == null){
   console.log('Attempting sql connection');
-  console.log(process.env.DB_HOST);
   con = mysql.createConnection({
     host: process.env.DB_HOST,
     user: process.env.DB_USERNAME,
@@ -32,7 +31,7 @@ while (con == null){
   });
   con.connect(function(err) {
     if (err) {
-      throw err;
+      return null
     }
     console.log("MySQL Connected!");
   });

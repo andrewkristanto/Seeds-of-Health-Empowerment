@@ -5,7 +5,7 @@ var urlencodedParser = bodyParser.urlencoded({ extended: false });
 const validator  = require('express-validator');
 var mysql = require('mysql');
 var appDir = path.dirname(require.main.filename);
-require('dotenv').config({path: appDir + '\\.env'});
+require('dotenv').config({path: appDir + '/.env'});
 
 var app = express();
 
@@ -23,6 +23,7 @@ var cur_role = null
 // connect to database
 while (con == null){
   console.log('Attempting sql connection');
+  console.log(process.env.DB_HOST);
   con = mysql.createConnection({
     host: process.env.DB_HOST,
     user: process.env.DB_USERNAME,

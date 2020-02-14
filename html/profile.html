@@ -38,7 +38,23 @@
                 <div class="heading">
                     <h2>My Profile</h2>
                 </div>
-                <div id = "body"></div>
+                <form action="update-info.html">
+                    <div class="form-group"><label for="subject">First Name</label><input class="form-control" type="text" id="firstname" disabled=""></div>
+                    <div class="form-group"><label for="subject">Last Name</label><input class="form-control" type="text" id="lastname" disabled=""></div>
+                    <div class="form-group"><label for="email">Email</label><input class="form-control item" type="email" id="email" disabled=""></div>
+                    <div class="form-group"><label for="subject">Street</label><input class="form-control" type="text" id="street" disabled=""></div>
+                    <div class="form-group"><label for="subject">City</label><input class="form-control" type="text" id="city" disabled=""></div>
+                    <div class="form-group"><label for="subject">State</label><input class="form-control item" type="text" id="state" disabled=""></div>
+                    <div class="form-group"><label for="subject">Zip</label><input class="form-control item" type="text" id="zip" disabled=""></div>
+                    <div class="form-group"><label for="message">Phone</label><input class="form-control" type="tel" id="phone" disabled=""></div>
+                    <div class="form-group"><button class="btn btn-primary btn-block btn-lg" type="submit">Change Information</button></div>
+                </form>
+            </div>
+            <div class="container">
+                <form action="update-password.html">
+                    <div class="form-group"><label for="subject">Password</label><input class="form-control" type="password" id="password" disabled=""></div>
+                    <div class="form-group"><button class="btn btn-primary btn-block btn-lg" type="submit">Change Password</button></div>
+                </form>
             </div>
         </section>
     </main>
@@ -57,15 +73,20 @@
 
     <script>
         $(document).ready(function(){
-
             $.get("/pull_profile", function(data, status){
                 data.forEach((d) => {
-                    var content = "<form action=\"update-info.html\"><div class=\"form-group\"><label for=\"subject\">First Name</label><input class=\"form-control\" type=\"text\" id=\"firstname\" value=\"" + d.firstName + "\" disabled=\"\"></div><div class=\"form-group\"><label for=\"subject\">Last Name</label><input class=\"form-control\" type=\"text\" id=\"lastname\" value=\"" + d.lastName + "\" disabled=\"\"></div><div class=\"form-group\"><label for=\"email\">Email</label><input class=\"form-control item\" type=\"email\" id=\"email\" value=\"" + d.email + "\" disabled=\"\"></div><div class=\"form-group\"><label for=\"subject\">Street</label><input class=\"form-control\" type=\"text\" id=\"street\" value=\"" + d.street + "\" disabled=\"\"></div><div class=\"form-group\"><label for=\"subject\">City</label><input class=\"form-control\" type=\"text\" id=\"city\" value=\"" + d.city + "\" disabled=\"\"></div><div class=\"form-group\"><label for=\"subject\">State</label><input class=\"form-control item\" type=\"text\" id=\"state\" value=\"" + d.state + "\" disabled=\"\"></div><div class=\"form-group\"><label for=\"subject\">Zip</label><input class=\"form-control item\" type=\"text\" id=\"zip\" value=\"" + d.zipcode + "\" disabled=\"\"></div><div class=\"form-group\"><label for=\"message\">Phone</label><input class=\"form-control\" type=\"tel\" id=\"phone\" value=\"" + d.phoneNumber + "\" disabled=\"\"></div><div class=\"form-group\"><button class=\"btn btn-primary btn-block btn-lg\" type=\"submit\">Change Information</button></div></form><form action=\"update-password.html\"><div class=\"form-group\"><label for=\"subject\">Password</label><input class=\"form-control\" type=\"password\" id=\"password\" disabled=\"\"></div><div class=\"form-group\"><button class=\"btn btn-primary btn-block btn-lg\" type=\"submit\">Change Password</button></div></form>"
-                    document.getElementById('body').innerHTML = content;
+                    document.getElementById('firstname').value = d.firstName;
+                    document.getElementById('lastname').value = d.lastName;
+                    document.getElementById('email').value = d.email;
+                    document.getElementById('street').value = d.street;
+                    document.getElementById('city').value = d.city;
+                    document.getElementById('state').value = d.state;
+                    document.getElementById('zip').value = d.zipcode;
+                    document.getElementById('phone').value = d.phoneNumber;
                 });
             });
-          });
-      </script>
+        });
+    </script>
 </body>
 
 </html>

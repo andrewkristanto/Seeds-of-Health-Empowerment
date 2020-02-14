@@ -5,7 +5,7 @@ var urlencodedParser = bodyParser.urlencoded({ extended: false });
 const validator  = require('express-validator');
 var mysql = require('mysql');
 var appDir = path.dirname(require.main.filename);
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 require('dotenv').config({path: appDir + '/.env'});
 
 var app = express();
@@ -202,5 +202,31 @@ app.get('/pull_survey', urlencodedParser, function(req, res){
       console.log('Data received from Db:\n');
       console.log(rows);
       res.json(rows)
+  });
+});
+
+//update
+app.post('/update_profile',urlencodedParser,  function(req, res) {
+  var fname = req.body.fname;
+  var lname = req.body.lname;
+  var email = req.body.email;
+  var street = req.body.street;
+  var city = req.body.city;
+  var state = req.body.state;
+  var zip = req.body.zip;
+  var phone = req.body.phone;
+  
+  var query = "UPDATE User SET email='" + email + "', firstName='" + fname + "', lastName='" + lname + "', street='" + street + "', city='" + city +
+  "', state='" + state + "', zipcode='" + zip + "', phoneNumber='" + phone + "' WHERE email='" + cur_user + "';";
+  console.log(query);
+
+  con.query(query, function(err) {
+    if (err) {
+      console.log("Update attempt failed");
+      res.redirect(req.get('referer'));
+    } else {
+      console.log("Update success");
+      res.sendFile(path.join(__dirname,'./html/profile.html'));
+    }
   });
 });

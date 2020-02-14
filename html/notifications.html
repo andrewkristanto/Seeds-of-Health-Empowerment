@@ -14,21 +14,6 @@
     <link rel="stylesheet" href="assets/css/style.css">
 </head>
 
-<script>
-    var res = "";
-    $(document).ready(funciton(){
-        $.get("/pull_notifications", function(data, status){
-            res = data;
-            console.log("Arrived on notifications page");
-
-            var table = $("#notifTable thead");
-            data.forEach((d) =>{
-                table.after("<tr><td>" + d.Date + "</td><td>" + d.Time + "</td><td>" + d.Notification + "</td></tr>");
-            });
-        });
-    });
-</script>
-
 <body><nav class="navbar navbar-dark navbar-expand-lg fixed-top bg-white portfolio-navbar gradient" style="background-color: rgb(151,192,109);padding: 15.2px -21px;">
         <div class="container"><img src="assets/img/logo.png" style="width: 75px;"><button data-toggle="collapse" class="navbar-toggler" data-target="#navbarNav"><span class="sr-only">Toggle navigation</span><span class="navbar-toggler-icon"></span></button>
             <div class="collapse navbar-collapse" id="navbarNav">
@@ -56,22 +41,10 @@
                             <thead>
                                 <tr>
                                     <th>Date</th>
-                                    <th>Notification</th>
                                     <th>Time</th>
+                                    <th>Notification</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                <tr>
-                                    <td>1/1/2020</td>
-                                    <td>Please complete a survey on your experience with gardening</td>
-                                    <td>13:10</td>
-                                </tr>
-                                <tr>
-                                    <td>12/5/2019</td>
-                                    <td>Welcome to Seeds of Health Empowerment</td>
-                                    <td>09:45</td>
-                                </tr>
-                            </tbody>
                         </table>
                     </div>
                 </div>
@@ -86,6 +59,17 @@
     <script src="assets/bootstrap/js/bootstrap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pikaday/1.6.1/pikaday.min.js"></script>
     <script src="assets/js/theme.js"></script>
+    <script>
+        $(document).ready(function(){
+
+            $.get("/pull_notifications", function(data, status){
+                var table = $("#notifTable thead");
+                data.forEach((d) =>{
+                    table.after("<tr><td>" + d.notifDate.split("T")[0] + "</td><td>" + d.notifTime + "</td><td>" + d.content + "</td></tr>");
+                });
+            });
+        });
+    </script>
 </body>
 
 </html>

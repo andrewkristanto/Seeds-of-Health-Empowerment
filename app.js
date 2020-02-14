@@ -5,6 +5,7 @@ var urlencodedParser = bodyParser.urlencoded({ extended: false });
 const validator  = require('express-validator');
 var mysql = require('mysql');
 var appDir = path.dirname(require.main.filename);
+const bcrypt = require('bcrypt');
 require('dotenv').config({path: appDir + '/.env'});
 
 var app = express();
@@ -18,7 +19,7 @@ var con;
 var cur_user = null
 var cur_role = null
 
-// var api = express.Router();
+var api = express.Router();
 
 // connect to database
 while (con == null){
@@ -87,36 +88,34 @@ app.get("/angelapplication", urlencodedParser,  function(req, res) {
 
 //authenticates login
 app.post('/',urlencodedParser,  function(req, res) {
-  var username = req.body.email;
+  var email = req.body.email;
   var password = req.body.password;
-  console.log("post received: Username: %s Password: %s", username, password);
+  console.log("post received: Username: %s Password: %s", email, password);
 
   //checks login against database
-  //
-  // var request = "SELECT Email, Password FROM User WHERE Email = '" + username + "'";
-  // con.query(request, function (err, result) {
-  //   if (err){
-  //     res.redirect(req.get('referer'));
-  //   }
-  //   if (!result.length){
-  //     console.log("invalid username")
-  //     res.redirect(req.get('referer'));
-  //   }
-  //   var pw_hash = result[0]["Password"];
-  //   var username = result[0]["Username"];
-  //   bcrypt.compare(password, pw_hash, function(err, res) {
-  //     if (res){
-  //       console.log("authenticated");
-  //       cur_user = username;
-  //       console.log(cur_user)
-  //       res.sendFile(path.join(__dirname,'./html/home.html'));
-  //     } else {
-  //       console.log("invalid password")
-  //       res.redirect(req.get('referer'));
-  //     }
-  //   });
-  // });
-  res.sendFile(path.join(__dirname,'./html/home.html'));
+  var request = "SELECT Email, Password FROM User WHERE Email = '" + email + "'";
+  con.query(request, function (err, result) {
+    if (err){
+      res.redirect(req.get('referer'));
+    }
+    if (!result.length){
+      console.log("Invalid username")
+      res.redirect(req.get('referer'));
+    }
+    var pw_hash = result[0]["Password"];
+    var email = result[0]["Email"];
+    bcrypt.compare(password, pw_hash, function(err, res2) {
+      if (res2){
+        console.log("Authenticated");
+        cur_user = email;
+        console.log(cur_user)
+        res.sendFile(path.join(__dirname,'./html/home.html'));
+      } else {
+        console.log("Invalid password")
+        res.redirect(req.get('referer'));
+      }
+    });
+  });
 });
 
 //register
@@ -132,31 +131,48 @@ app.post('/register',urlencodedParser,  function(req, res) {
   var password = req.body.pass;
   var confirmpass = req.body.confirmpass;
   var role = req.body.role;
+  console.log(req.body);
 
-  // req.checkBody("email", 'Invalid email address.').isEmail();
-  // req.checkBody('password', 'password must be at least 8 characters').isLength({ min: 8, max:20 });
-  // req.checkBody("confirmpass", 'Passwords entered do not match!').equals(password);
+  var valid = true;
+  if (password.length < 8 || password.length > 20) {
+    valid = false;
+  }
+  if (password != confirmpass) {
+    valid = false;
+  }
 
-  // var pageErrors = req.validationErrors();
+  if (valid) {
+    bcrypt.hash(password, 10, function(err, hash) {
+      var query = "INSERT INTO User (password, firstName, lastName, street, city, state, zipcode, email, phoneNumber, userStatus, lastLogin) "+
+      "VALUES ('" + hash + "', '" + fname + "', '" + lname + "', '" + street + "', '" + city + "', '" + state + "', '" + zip + "', '" + email + "', '" + phone + "', 'pending', null);";
 
-  // var query = ""
-  // con.query("INSERT INTO User (password, firstname, lastname, street, city, state, zip, email, role, phoneNumber) "+
-  //   "VALUES ('" + password + "', '" + fname + "', '" + lname + "', '" + street + "', '" + city + "', '" + state + "', '" + zip + "' , '" + email + "', '"+"Gardener"+"', '" + phone + "');", function(err,res) {
-  //     if (err) {
-  //       res.redirect(req.get('referer'));
-  //     } else if (res == 0) {
-  //       console.log("registration success");
-  //       res.sendFile(path.join(__dirname,'./html/login.html'));
-  //     } else if (res == 1) {
-  //       console.log("Registration attempt failed")
-  //       res.redirect(req.get('referer'));
-  //     }
-  //     res.json(rows)
-  // });
+      // if (role == 1) {
+      //   query += "INSERT INTO Gardener (email) VALUES ('" + email + "');";
+      // }
+      // if (role == 2) {
+      //   query += "INSERT INTO Angel (email) VALUES ('" + email + "');";
+      // }
+
+      console.log(query);
+      con.query(query, function(err) {
+        if (err) {
+          console.log("Registration attempt failed");
+          res.redirect(req.get('referer'));
+        } else {
+          console.log("Registration success");
+          res.sendFile(path.join(__dirname,'./html/login.html'));
+        }
+      });
+    });
+  } else {
+    console.log("Invalid input");
+    res.redirect(req.get('referer'));
+  }
 });
 
 //pull
 app.get('/pull_profile',urlencodedParser,  function(req, res) {
+  console.log("Arrived on profile page.");
   con.query("SELECT * FROM User WHERE Email = '" + cur_user + "'", function(err,rows) {
       if (err) throw err;
       console.log('Data received from Db:\n');
@@ -166,6 +182,7 @@ app.get('/pull_profile',urlencodedParser,  function(req, res) {
 });
 
 app.get('/pull_notifications', urlencodedParser, function(req, res){
+  console.log("Arrived on notifications page.");
   con.query("SELECT * FROM Notifications WHERE Email = '" + cur_user + "'", function(err,rows) {
       if (err) throw err;
       console.log('Data received from Db:\n');

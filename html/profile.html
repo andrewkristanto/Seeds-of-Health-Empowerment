@@ -39,21 +39,6 @@
                     <h2>My Profile</h2>
                 </div>
                 <div id = "body"></div>
-                <!-- <form action="update-info.html">
-                    <div class="form-group"><label for="subject">First Name</label><input class="form-control" type="text" id="firstname" disabled=""></div>
-                    <div class="form-group"><label for="subject">Last Name</label><input class="form-control" type="text" id="lastname" disabled=""></div>
-                    <div class="form-group"><label for="email">Email</label><input class="form-control item" type="email" id="email" disabled=""></div>
-                    <div class="form-group"><label for="subject">Street</label><input class="form-control" type="text" id="street" disabled=""></div>
-                    <div class="form-group"><label for="subject">City</label><input class="form-control" type="text" id="city" disabled=""></div>
-                    <div class="form-group"><label for="subject">State</label><input class="form-control item" type="text" id="state" disabled=""></div>
-                    <div class="form-group"><label for="subject">Zip</label><input class="form-control item" type="text" id="zip" disabled=""></div>
-                    <div class="form-group"><label for="message">Phone</label><input class="form-control" type="tel" id="phone" disabled=""></div>
-                    <div class="form-group"><button class="btn btn-primary btn-block btn-lg" type="submit">Change Information</button></div>
-                </form> -->
-                <!-- <form action="update-password.html">
-                    <div class="form-group"><label for="subject">Password</label><input class="form-control" type="text" id="password" disabled=""></div>
-                    <div class="form-group"><button class="btn btn-primary btn-block btn-lg" type="submit">Change Password</button></div>
-                </form> -->
             </div>
         </section>
     </main>
@@ -72,20 +57,13 @@
 
     <script>
         $(document).ready(function(){
-            console.log("Arrived on profile page.");
-            var fname = "Andrew";
-            var content = "<form action=\"update-info.html\"><div class=\"form-group\"><label for=\"subject\">First Name</label><input class=\"form-control\" type=\"text\" id=\"firstname\" value=\"" + fname + "\" disabled=\"\"></div><div class=\"form-group\"><label for=\"subject\">Last Name</label><input class=\"form-control\" type=\"text\" id=\"lastname\" disabled=\"\"></div><div class=\"form-group\"><label for=\"email\">Email</label><input class=\"form-control item\" type=\"email\" id=\"email\" disabled=\"\"></div><div class=\"form-group\"><label for=\"subject\">Street</label><input class=\"form-control\" type=\"text\" id=\"street\" disabled=\"\"></div><div class=\"form-group\"><label for=\"subject\">City</label><input class=\"form-control\" type=\"text\" id=\"city\" disabled=\"\"></div><div class=\"form-group\"><label for=\"subject\">State</label><input class=\"form-control item\" type=\"text\" id=\"state\" disabled=\"\"></div><div class=\"form-group\"><label for=\"subject\">Zip</label><input class=\"form-control item\" type=\"text\" id=\"zip\" disabled=\"\"></div><div class=\"form-group\"><label for=\"message\">Phone</label><input class=\"form-control\" type=\"tel\" id=\"phone\" disabled=\"\"></div><div class=\"form-group\"><button class=\"btn btn-primary btn-block btn-lg\" type=\"submit\">Change Information</button></div></form>"
-            document.getElementById('body').innerHTML = content;
 
-            //Add code above when /pull_profile is implemented
-            // $.get("/pull_profile", function(data, status){
-            //     res = data;
-            //     console.log("Arrived on Profile Page");
-            //     data.forEach((d) => {
-            //         var content = "<form action=\"update-info.html\"><div class=\"form-group\"><label for=\"subject\">First Name</label><input class=\"form-control\" type=\"text\" id=\"firstname\" value=\"" + d.Fname + "\" disabled=\"\"></div><div class=\"form-group\"><label for=\"subject\">Last Name</label><input class=\"form-control\" type=\"text\" id=\"lastname\" value=\"" + d.Lname + "\" disabled=\"\"></div><div class=\"form-group\"><label for=\"email\">Email</label><input class=\"form-control item\" type=\"email\" id=\"email\" value=\"" + d.Email + "\" disabled=\"\"></div><div class=\"form-group\"><label for=\"subject\">Street</label><input class=\"form-control\" type=\"text\" id=\"street\" value=\"" + d.Street + "\" disabled=\"\"></div><div class=\"form-group\"><label for=\"subject\">City</label><input class=\"form-control\" type=\"text\" id=\"city\" value=\"" + d.City + "\" disabled=\"\"></div><div class=\"form-group\"><label for=\"subject\">State</label><input class=\"form-control item\" type=\"text\" id=\"state\" value=\"" + d.State + "\" disabled=\"\"></div><div class=\"form-group\"><label for=\"subject\">Zip</label><input class=\"form-control item\" type=\"text\" id=\"zip\" value=\"" + d.Zip + "\" disabled=\"\"></div><div class=\"form-group\"><label for=\"message\">Phone</label><input class=\"form-control\" type=\"tel\" id=\"phone\" value=\"" + d.Phone + "\" disabled=\"\"></div><div class=\"form-group\"><button class=\"btn btn-primary btn-block btn-lg\" type=\"submit\">Change Information</button></div></form><form action=\"update-password.html\"><div class=\"form-group\"><label for=\"subject\">Password</label><input class=\"form-control\" type=\"password\" id=\"password\" value=\"" + d.Password + "\" disabled=\"\"></div><div class=\"form-group\"><button class=\"btn btn-primary btn-block btn-lg\" type=\"submit\">Change Password</button></div></form>"
-            //         document.getElementById('body').innerHTML = content;
-            //     });
-            // });
+            $.get("/pull_profile", function(data, status){
+                data.forEach((d) => {
+                    var content = "<form action=\"update-info.html\"><div class=\"form-group\"><label for=\"subject\">First Name</label><input class=\"form-control\" type=\"text\" id=\"firstname\" value=\"" + d.firstName + "\" disabled=\"\"></div><div class=\"form-group\"><label for=\"subject\">Last Name</label><input class=\"form-control\" type=\"text\" id=\"lastname\" value=\"" + d.lastName + "\" disabled=\"\"></div><div class=\"form-group\"><label for=\"email\">Email</label><input class=\"form-control item\" type=\"email\" id=\"email\" value=\"" + d.email + "\" disabled=\"\"></div><div class=\"form-group\"><label for=\"subject\">Street</label><input class=\"form-control\" type=\"text\" id=\"street\" value=\"" + d.street + "\" disabled=\"\"></div><div class=\"form-group\"><label for=\"subject\">City</label><input class=\"form-control\" type=\"text\" id=\"city\" value=\"" + d.city + "\" disabled=\"\"></div><div class=\"form-group\"><label for=\"subject\">State</label><input class=\"form-control item\" type=\"text\" id=\"state\" value=\"" + d.state + "\" disabled=\"\"></div><div class=\"form-group\"><label for=\"subject\">Zip</label><input class=\"form-control item\" type=\"text\" id=\"zip\" value=\"" + d.zipcode + "\" disabled=\"\"></div><div class=\"form-group\"><label for=\"message\">Phone</label><input class=\"form-control\" type=\"tel\" id=\"phone\" value=\"" + d.phoneNumber + "\" disabled=\"\"></div><div class=\"form-group\"><button class=\"btn btn-primary btn-block btn-lg\" type=\"submit\">Change Information</button></div></form><form action=\"update-password.html\"><div class=\"form-group\"><label for=\"subject\">Password</label><input class=\"form-control\" type=\"password\" id=\"password\" disabled=\"\"></div><div class=\"form-group\"><button class=\"btn btn-primary btn-block btn-lg\" type=\"submit\">Change Password</button></div></form>"
+                    document.getElementById('body').innerHTML = content;
+                });
+            });
           });
       </script>
 </body>

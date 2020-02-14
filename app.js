@@ -12,30 +12,30 @@ var app = express();
 app.use('/assets/css', express.static('css'));
 app.use(express.static('html'));
 app.use('/assets/js', express.static('js'));
+// app.use(validator());
 
 var con;
 var cur_user = null
 var cur_role = null
-// app.use(validator());
 
 // var api = express.Router();
 
 // connect to database
 while (con == null){
   console.log('Attempting sql connection');
-  console.log(process.env.DB_HOST);
-  con = mysql.createConnection({
+  con = mysql.createPool({
     host: process.env.DB_HOST,
     user: process.env.DB_USERNAME,
     password: process.env.DB_PASSWORD,
     database: process.env.DB_DATABASE
   });
-  con.connect(function(err) {
-    if (err) {
-      return null
-    }
-    console.log("MySQL Connected!");
-  });
+  console.log("MySQL Connected!");
+  // con.connect(function(err) {
+  //   if (err) {
+  //     return null
+  //   }
+  //   console.log("MySQL Connected!");
+  // });
 }
 
 //starts app
@@ -93,29 +93,30 @@ app.post('/',urlencodedParser,  function(req, res) {
 
   //checks login against database
   //
-  var request = "SELECT Email, Password FROM User WHERE Email = '" + username + "'";
-  con.query(request, function (err, result) {
-    if (err){
-      res.redirect(req.get('referer'));
-    }
-    if (!result.length){
-      console.log("invalid username")
-      res.redirect(req.get('referer'));
-    }
-    var pw_hash = result[0]["Password"];
-    var username = result[0]["Username"];
-    bcrypt.compare(password, pw_hash, function(err, res) {
-      if (res){
-        console.log("authenticated");
-        cur_user = username;
-        console.log(cur_user)
-        res.sendFile(path.join(__dirname,'./html/home.html'));
-      } else {
-        console.log("invalid password")
-        res.redirect(req.get('referer'));
-      }
-    });
-  });
+  // var request = "SELECT Email, Password FROM User WHERE Email = '" + username + "'";
+  // con.query(request, function (err, result) {
+  //   if (err){
+  //     res.redirect(req.get('referer'));
+  //   }
+  //   if (!result.length){
+  //     console.log("invalid username")
+  //     res.redirect(req.get('referer'));
+  //   }
+  //   var pw_hash = result[0]["Password"];
+  //   var username = result[0]["Username"];
+  //   bcrypt.compare(password, pw_hash, function(err, res) {
+  //     if (res){
+  //       console.log("authenticated");
+  //       cur_user = username;
+  //       console.log(cur_user)
+  //       res.sendFile(path.join(__dirname,'./html/home.html'));
+  //     } else {
+  //       console.log("invalid password")
+  //       res.redirect(req.get('referer'));
+  //     }
+  //   });
+  // });
+  res.sendFile(path.join(__dirname,'./html/home.html'));
 });
 
 //register
@@ -130,20 +131,28 @@ app.post('/register',urlencodedParser,  function(req, res) {
   var phone = req.body.phone;
   var password = req.body.pass;
   var confirmpass = req.body.confirmpass;
+  var role = req.body.role;
 
-  con.query("INSERT INTO User (password, firstname, lastname, street, city, state, zip, email, role, phoneNumber) "+
-    "VALUES ('" + password + "', '" + fname + "', '" + lname + "', '" + street + "', '" + city + "', '" + state + "', '" + zip + "' , '" + email + "', '"+"Gardener"+"', '" + phone + "');", function(err,res) {
-      if (err) {
-        res.redirect(req.get('referer'));
-      } else if (res == 0) {
-        console.log("registration success");
-        res.sendFile(path.join(__dirname,'./html/login.html'));
-      } else if (res == 1) {
-        console.log("Registration attempt failed")
-        res.redirect(req.get('referer'));
-      }
-      res.json(rows)
-  });
+  // req.checkBody("email", 'Invalid email address.').isEmail();
+  // req.checkBody('password', 'password must be at least 8 characters').isLength({ min: 8, max:20 });
+  // req.checkBody("confirmpass", 'Passwords entered do not match!').equals(password);
+
+  // var pageErrors = req.validationErrors();
+
+  // var query = ""
+  // con.query("INSERT INTO User (password, firstname, lastname, street, city, state, zip, email, role, phoneNumber) "+
+  //   "VALUES ('" + password + "', '" + fname + "', '" + lname + "', '" + street + "', '" + city + "', '" + state + "', '" + zip + "' , '" + email + "', '"+"Gardener"+"', '" + phone + "');", function(err,res) {
+  //     if (err) {
+  //       res.redirect(req.get('referer'));
+  //     } else if (res == 0) {
+  //       console.log("registration success");
+  //       res.sendFile(path.join(__dirname,'./html/login.html'));
+  //     } else if (res == 1) {
+  //       console.log("Registration attempt failed")
+  //       res.redirect(req.get('referer'));
+  //     }
+  //     res.json(rows)
+  // });
 });
 
 //pull

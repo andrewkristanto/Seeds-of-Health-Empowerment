@@ -192,7 +192,12 @@ app.get('/pull_notifications', urlencodedParser, function(req, res){
 });
 
 app.get('/pull_survey', urlencodedParser, function(req, res){
-  con.query("SELECT SurveyAnswers.Question, Answer, Type from SurveyAnswers INNER JOIN SurveyData ON SurveyAnswers.Question = SurveyData.Question WHERE SurveyData.Email ='" + cur_user + "'", function(err,rows) {
+  con.query("SELECT SurveyQuestions.question, SurveyAnswers.answerChoice, SurveyResponses.response " +
+            "FROM SurveyQuestions " +
+            "LEFT JOIN SurveyAnswers on SurveyQuestions.question = SurveyAnswers.question " +
+            "LEFT JOIN SurveyResponses on SurveyQuestions.question = SurveyResponses.question " +
+            "LEFT JOIN User on SurveyResponses.email = '"+'andrewkristanto@gmail.com'+"' and response is NULL " +
+            "WHERE SurveyResponses.response is NULL", function(err,rows) {
       if (err) throw err;
       console.log('Data received from Db:\n');
       console.log(rows);

@@ -51,11 +51,7 @@
     <script src="assets/js/theme.js"></script>
     <script>
         $(document).ready(function(){
-            // Add code above when /pull_profile is implemented
             $.get("/pull_survey", function(data, status){
-                res = data;
-                console.log("res====" + res)
-                console.log("Arrived on Profile Page");
                 var content = "";
                 var i = 0;
                 var questions = new Set();
@@ -65,33 +61,23 @@
                 });
 
                 questions.forEach((q) => {
-                    console.log(q)
-                    content += "<form action=\"/submit_survey\" id = \"survey-" + q + "\"><div>"
-                    content += "<div class=\"container\" style=\"padding: 25px;\"><h4>" + q + "</h4></div>"
+                    content += "<form method=\"post\" action=\"/submit_survey/" + q + "\"><div>";
+                    content += "<div class=\"container\" style=\"padding: 25px;\"><h4>" + q + "</h4></div>";
                     
+                    content += "<div class=\"form-group\"><select id=\"" + q + "\" name=\"" + q + "\"><option value=\"\" disabled> -- select an option -- </option>";
                     i = 0;
                     data.forEach((d) => {
-                        console.log(d)
                         if (data[i].question == q) {
-                            content += "<div class=\"container\"><div class=\"form-check\"><input class=\"form-check-input\" type=\"radio\" id=\"formCheck-" + i + "\" name=\"radio-group\"><label class=\"form-check-label\" for=\"formCheck-" + i + "\">" + d.answerChoice+ "</label></div>"; 
-                            
+                            content += "<option value=\"" + d.answerChoice + "\">" + d.answerChoice + "</option>"; 
                         }
-                        i += 1;
+                        i++;
                     });
 
-                    content += "<div class=\"container\" style=\"padding: 25px;\"><button class=\"btn btn-primary\" type=\"submit\" style=\"width: 278px;height: 30px;margin-top: 10;padding: 0;font-size: 13;\">Submit</button></div>"
-                    content += "</div></form>\n"
+                    content += "</select></div><div class=\"container\" style=\"padding: 25px;\"><button class=\"btn btn-primary\" type=\"submit\" style=\"width: 278px;height: 30px;margin-top: 10;padding: 0;font-size: 13;\">Submit</button></div>";
+                    content += "</div></form>\n";
                 });
-
-                // data.forEach((d) => {
-                //     console.log(d)
-                //     content += "<div class=\"container\" style=\"padding: 25px;\"><h4>" + data[i].question + "</h4></div>"
-                //     content += "<div class=\"container\"><div class=\"form-check\"><input class=\"form-check-input\" type=\"radio\" id=\"formCheck-" + i + "\" name=\"radio-group\"><label class=\"form-check-label\" for=\"formCheck-" + i + "\">" + d.answerChoice+ "</label></div>";
-                //     i += 1;
-                //     content += "<div class=\"container\" style=\"padding: 25px;\"><button class=\"btn btn-primary\" type=\"submit\" style=\"width: 278px;height: 30px;margin-top: 10;padding: 0;font-size: 13;\">Submit</button></div>"            
-                // });
                 
-                    document.getElementById('survey').innerHTML = content;
+                document.getElementById('survey').innerHTML = content;
             });
           });
     </script>

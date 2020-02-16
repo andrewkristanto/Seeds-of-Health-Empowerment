@@ -49,7 +49,7 @@ app.get('/', function (req, res) {
   res.sendFile(path.join(__dirname,'./html/login.html'));
 });
 
-/* Page navigations */
+// Page navigations ===================================================================================================================
 app.get("/logout", urlencodedParser,  function(req, res) {
     res.sendFile(path.join(__dirname,'./html/login.html'));
 });
@@ -86,14 +86,14 @@ app.get("/angelapplication", urlencodedParser,  function(req, res) {
   res.sendFile(path.join(__dirname,'./html/angel_application.html'));
 });
 
-//authenticates login
+// LOGIN =========================================================================================================================
 app.post('/',urlencodedParser,  function(req, res) {
   var email = req.body.email;
   var password = req.body.password;
   console.log("post received: Username: %s Password: %s", email, password);
 
   //checks login against database
-  var request = "SELECT Email, Password FROM User WHERE Email = '" + email + "'";
+  var request = "SELECT email, password FROM User WHERE email = '" + email + "'";
   con.query(request, function (err, result) {
     if (err){
       res.redirect(req.get('referer'));
@@ -102,8 +102,8 @@ app.post('/',urlencodedParser,  function(req, res) {
       console.log("Invalid username")
       res.redirect(req.get('referer'));
     }
-    var pw_hash = result[0]["Password"];
-    var email = result[0]["Email"];
+    var pw_hash = result[0]["password"];
+    var email = result[0]["email"];
     bcrypt.compare(password, pw_hash, function(err, res2) {
       if (res2){
         console.log("Authenticated");
@@ -118,7 +118,7 @@ app.post('/',urlencodedParser,  function(req, res) {
   });
 });
 
-//register
+// REGISTER ===========================================================================================================================================================
 app.post('/register',urlencodedParser,  function(req, res) {
   var fname = req.body.fname;
   var lname = req.body.lname;
@@ -170,7 +170,7 @@ app.post('/register',urlencodedParser,  function(req, res) {
   }
 });
 
-//pull
+// PULL ==================================================================================================================================
 app.get('/pull_profile',urlencodedParser,  function(req, res) {
   console.log("Arrived on profile page.");
   con.query("SELECT * FROM User WHERE Email = '" + cur_user + "'", function(err,rows) {
@@ -192,12 +192,12 @@ app.get('/pull_notifications', urlencodedParser, function(req, res){
 });
 
 app.get('/pull_survey', urlencodedParser, function(req, res){
-  con.query("SELECT SurveyQuestions.question, SurveyAnswers.answerChoice, SurveyResponses.response " +
+  console.log("Arrived on survey page.");
+  con.query("SELECT SurveyQuestions.question, SurveyAnswers.answerChoice, SurveyResponses.response, SurveyResponses.releaseDate " +
             "FROM SurveyQuestions " +
             "LEFT JOIN SurveyAnswers on SurveyQuestions.question = SurveyAnswers.question " +
             "LEFT JOIN SurveyResponses on SurveyQuestions.question = SurveyResponses.question " +
-            "LEFT JOIN User on SurveyResponses.email = '"+'andrewkristanto@gmail.com'+"' and response is NULL " +
-            "WHERE SurveyResponses.response is NULL", function(err,rows) {
+            "WHERE SurveyResponses.email='" + cur_user + "' and response=''", function(err,rows) {
       if (err) throw err;
       console.log('Data received from Db:\n');
       console.log(rows);
@@ -205,7 +205,7 @@ app.get('/pull_survey', urlencodedParser, function(req, res){
   });
 });
 
-//update
+// UPDATE ======================================================================================================================
 app.post('/update_profile',urlencodedParser,  function(req, res) {
   var fname = req.body.fname;
   var lname = req.body.lname;
@@ -222,11 +222,81 @@ app.post('/update_profile',urlencodedParser,  function(req, res) {
 
   con.query(query, function(err) {
     if (err) {
-      console.log("Update attempt failed");
+      console.log("Update profile attempt failed");
       res.redirect(req.get('referer'));
     } else {
-      console.log("Update success");
+      console.log("Update profile success");
       res.sendFile(path.join(__dirname,'./html/profile.html'));
+    }
+  });
+});
+
+app.post('/update_password',urlencodedParser,  function(req, res) {
+  var currPass = req.body.currPass;
+  var newPass = req.body.newPass;
+  var newPass2 = req.body.newPass2;
+  console.log(req.body);
+
+  var valid = true;
+  if (newPass.length < 8 || newPass.length > 20) {
+    valid = false;
+  }
+  if (newPass != newPass2) {
+    valid = false;
+  }
+
+  if (valid) {
+    con.query("SELECT password FROM User WHERE Email = '" + cur_user + "'", function (err, result) {
+      if (err){
+        res.redirect(req.get('referer'));
+      }
+      var pw_hash = result[0]["password"];
+      bcrypt.compare(currPass, pw_hash, function(err, res2) {
+        if (res2){
+          console.log("Password authenticated");
+          bcrypt.hash(newPass, 10, function(err, hash) {
+            var query = "UPDATE User SET password='" + hash + "' WHERE email='" + cur_user + "';";
+            console.log(query);
+            con.query(query, function(err) {
+              if (err) {
+                console.log("Update password attempt failed");
+                res.redirect(req.get('referer'));
+              } else {
+                console.log("Update password success");
+                res.sendFile(path.join(__dirname,'./html/profile.html'));
+              }
+            });
+          });
+        } else {
+          console.log("Invalid password")
+          res.redirect(req.get('referer'));
+        }
+      });
+    });
+  } else {
+    console.log("Invalid input");
+    res.redirect(req.get('referer'));
+  }
+});
+
+// SUBMIT ====================================================================================================================================
+
+app.post('/submit_survey/:query',urlencodedParser,  function(req, res) {
+  console.log("Received survey response");
+  var question = req.params.query;
+  var response = req.body[question];
+  console.log(req.body);
+
+  var query = "UPDATE SurveyResponses SET response='" + response + "' WHERE email='" + cur_user + "' and question='" + question + "';";
+  console.log(query);
+
+  con.query(query, function(err) {
+    if (err) {
+      console.log("Submit survey attempt failed");
+      res.redirect(req.get('referer'));
+    } else {
+      console.log("Submit survey success");
+      res.redirect(req.get('referer'));
     }
   });
 });

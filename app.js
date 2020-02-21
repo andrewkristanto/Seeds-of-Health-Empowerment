@@ -195,8 +195,8 @@ app.get('/pull_survey', urlencodedParser, function(req, res){
   console.log("Arrived on survey page.");
   con.query("SELECT SurveyQuestions.question, SurveyAnswers.answerChoice, SurveyResponses.response, SurveyResponses.releaseDate " +
             "FROM SurveyQuestions " +
-            "LEFT JOIN SurveyAnswers on SurveyQuestions.question = SurveyAnswers.question " +
-            "LEFT JOIN SurveyResponses on SurveyQuestions.question = SurveyResponses.question " +
+            "LEFT JOIN SurveyAnswers on SurveyQuestions.qID = SurveyAnswers.qID " +
+            "LEFT JOIN SurveyResponses on SurveyQuestions.qID = SurveyResponses.qID " +
             "WHERE SurveyResponses.email='" + cur_user + "' and response=''", function(err,rows) {
       if (err) throw err;
       console.log('Data received from Db:\n');
@@ -209,14 +209,13 @@ app.get('/pull_survey', urlencodedParser, function(req, res){
 app.post('/update_profile',urlencodedParser,  function(req, res) {
   var fname = req.body.fname;
   var lname = req.body.lname;
-  var email = req.body.email;
   var street = req.body.street;
   var city = req.body.city;
   var state = req.body.state;
   var zip = req.body.zip;
   var phone = req.body.phone;
   
-  var query = "UPDATE User SET email='" + email + "', firstName='" + fname + "', lastName='" + lname + "', street='" + street + "', city='" + city +
+  var query = "UPDATE User SET firstName='" + fname + "', lastName='" + lname + "', street='" + street + "', city='" + city +
   "', state='" + state + "', zipcode='" + zip + "', phoneNumber='" + phone + "' WHERE email='" + cur_user + "';";
   console.log(query);
 

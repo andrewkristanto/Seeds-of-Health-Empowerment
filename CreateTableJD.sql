@@ -13,48 +13,12 @@ CREATE TABLE User (
 	state VARCHAR(50) NOT NULL DEFAULT "GA",
 	zipcode VARCHAR(50) NOT NULL,
     phoneNumber VARCHAR(50) NOT NULL,
+    role TINYINT NOT NULL,
     userStatus VARCHAR(50) NOT NULL DEFAULT "Pending",
-    lastLogin Date NOT NULL,
+    lastLogin Date,
 	PRIMARY KEY (email)
 );
-CREATE TABLE Employee (
-	email VARCHAR(50) NOT NULL,
-	PRIMARY KEY (email),
-	FOREIGN KEY (email)
-		REFERENCES User (email)
-			ON DELETE CASCADE
-			ON UPDATE CASCADE
-);
-CREATE TABLE Angel (
-	email VARCHAR(50) NOT NULL,
-	PRIMARY KEY (email),
-	FOREIGN KEY (email)
-		REFERENCES Employee (email)
-			ON DELETE CASCADE
-			ON UPDATE CASCADE
-);
-CREATE TABLE Gardener (
-	email VARCHAR(50) NOT NULL,
-    coach VARCHAR(50) NOT NULL,
-	PRIMARY KEY (email),
-	FOREIGN KEY (email)
-		REFERENCES User (email)
-			ON DELETE CASCADE
-			ON UPDATE CASCADE
-            ,
-	FOREIGN KEY (coach)
-		REFERENCES Angel (email)
-			ON DELETE CASCADE
-			ON UPDATE CASCADE
-);
-CREATE TABLE Admin (
-	email VARCHAR(50) NOT NULL,
-	PRIMARY KEY (email),
-	FOREIGN KEY (email)
-		REFERENCES Employee (email)
-			ON DELETE CASCADE
-			ON UPDATE CASCADE
-);
+
 CREATE TABLE SurveyQuestions (
 	question VARCHAR(100) NOT NULL,
 	qID int NOT NULL AUTO_INCREMENT,
@@ -105,7 +69,7 @@ CREATE TABLE CheckIn (
 );
 CREATE TABLE Posts (
 	email VARCHAR(50) NOT NULL,
-	accountType VARCHAR(50) NOT NULL,
+	accountType TINYINT NOT NULL,
     postId VARCHAR(50) NOT NULL,
 	postText VARCHAR(300) NOT NULL,
 	postDate DATE NOT NULL,
@@ -118,7 +82,7 @@ CREATE TABLE Posts (
 );
 CREATE TABLE Comments (
 	email VARCHAR(50) NOT NULL,
-	accountType VARCHAR(50) NOT NULL,
+	accountType TINYINT NOT NULL,
     postId VARCHAR(50) NOT NULL,
 	postText VARCHAR(300) NOT NULL,
 	postDate DATE NOT NULL,

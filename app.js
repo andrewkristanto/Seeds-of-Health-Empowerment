@@ -193,7 +193,7 @@ app.get('/pull_notifications', urlencodedParser, function(req, res){
 
 app.get('/pull_survey', urlencodedParser, function(req, res){
   console.log("Arrived on survey page.");
-  con.query("SELECT SurveyQuestions.question, SurveyAnswers.answerChoice, SurveyResponses.response, SurveyResponses.releaseDate " +
+  con.query("SELECT SurveyQuestions.qID, SurveyQuestions.question, SurveyAnswers.answerChoice, SurveyResponses.response, SurveyResponses.releaseDate " +
             "FROM SurveyQuestions " +
             "LEFT JOIN SurveyAnswers on SurveyQuestions.qID = SurveyAnswers.qID " +
             "LEFT JOIN SurveyResponses on SurveyQuestions.qID = SurveyResponses.qID " +
@@ -282,11 +282,11 @@ app.post('/update_password',urlencodedParser,  function(req, res) {
 
 app.post('/submit_survey/:query',urlencodedParser,  function(req, res) {
   console.log("Received survey response");
-  var question = req.params.query;
-  var response = req.body[question];
+  var qID = req.params.query;
+  var response = req.body[qID];
   console.log(req.body);
 
-  var query = "UPDATE SurveyResponses SET response='" + response + "' WHERE email='" + cur_user + "' and question='" + question + "';";
+  var query = "UPDATE SurveyResponses SET response='" + response + "' WHERE email='" + cur_user + "' and qID=" + qID + ";";
   console.log(query);
 
   con.query(query, function(err) {

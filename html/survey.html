@@ -54,20 +54,28 @@
             $.get("/pull_survey", function(data, status){
                 var content = "";
                 var i = 0;
-                var questions = new Set();
+                var qIDs = new Set();
                 data.forEach((d) => {
-                    questions.add(data[i].question)
+                    qIDs.add(data[i].qID)
                     i++;
                 });
 
-                questions.forEach((q) => {
-                    content += "<form method=\"post\" action=\"/submit_survey/" + q + "\"><div>";
-                    content += "<div class=\"container\" style=\"padding: 25px;\"><h4>" + q + "</h4></div>";
+                qIDs.forEach((qID) => {
+                    content += "<form method=\"post\" action=\"/submit_survey/" + qID + "\"><div>";
+
+                    i = 0;
+                    while(true){
+                        if (data[i].qID == qID) {
+                            content += "<div class=\"container\" style=\"padding: 25px;\"><h4>" + data[i].question + "</h4></div>";
+                            break;
+                        }
+                        i++;
+                    }
                     
-                    content += "<div class=\"form-group\"><select id=\"" + q + "\" name=\"" + q + "\"><option value=\"\" disabled> -- select an option -- </option>";
+                    content += "<div class=\"form-group\"><select id=\"" + qID + "\" name=\"" + qID + "\"><option value=\"\" disabled> -- select an option -- </option>";
                     i = 0;
                     data.forEach((d) => {
-                        if (data[i].question == q) {
+                        if (data[i].qID == qID) {
                             content += "<option value=\"" + d.answerChoice + "\">" + d.answerChoice + "</option>"; 
                         }
                         i++;

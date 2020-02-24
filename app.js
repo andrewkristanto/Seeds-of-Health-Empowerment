@@ -17,6 +17,11 @@ app.use('/assets/js', express.static('js'));
 
 var con;
 var cur_user = null
+/* Roles:
+ * 0 - User
+ * 1 - Gardener
+ * 2 - Angel
+ */
 var cur_role = null
 
 var api = express.Router();
@@ -93,7 +98,7 @@ app.post('/',urlencodedParser,  function(req, res) {
   console.log("post received: Username: %s Password: %s", email, password);
 
   //checks login against database
-  var request = "SELECT email, password FROM User WHERE email = '" + email + "'";
+  var request = "SELECT email, password, role FROM User WHERE email = '" + email + "'";
   con.query(request, function (err, result) {
     if (err){
       res.redirect(req.get('referer'));
@@ -104,10 +109,12 @@ app.post('/',urlencodedParser,  function(req, res) {
     }
     var pw_hash = result[0]["password"];
     var email = result[0]["email"];
+    var role = result[0]["role"];
     bcrypt.compare(password, pw_hash, function(err, res2) {
       if (res2){
         console.log("Authenticated");
         cur_user = email;
+        cur_role = role;
         console.log(cur_user)
         res.sendFile(path.join(__dirname,'./html/home.html'));
       } else {
@@ -143,15 +150,8 @@ app.post('/register',urlencodedParser,  function(req, res) {
 
   if (valid) {
     bcrypt.hash(password, 10, function(err, hash) {
-      var query = "INSERT INTO User (password, firstName, lastName, street, city, state, zipcode, email, phoneNumber, userStatus, lastLogin) "+
-      "VALUES ('" + hash + "', '" + fname + "', '" + lname + "', '" + street + "', '" + city + "', '" + state + "', '" + zip + "', '" + email + "', '" + phone + "', 'pending', null);";
-
-      // if (role == 1) {
-      //   query += "INSERT INTO Gardener (email) VALUES ('" + email + "');";
-      // }
-      // if (role == 2) {
-      //   query += "INSERT INTO Angel (email) VALUES ('" + email + "');";
-      // }
+      var query = "INSERT INTO User (password, firstName, lastName, street, city, state, zipcode, email, phoneNumber, userStatus, lastLogin, role) "+
+      "VALUES ('" + hash + "', '" + fname + "', '" + lname + "', '" + street + "', '" + city + "', '" + state + "', '" + zip + "', '" + email + "', '" + phone + "', 'pending', null, " + role + ");";
 
       console.log(query);
       con.query(query, function(err) {

@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
-    <title>Project Page - Brand</title>
+    <title>Garden Angels</title>
     <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:300,400,700">
     <link rel="stylesheet" href="assets/fonts/ionicons.min.css">
@@ -39,49 +39,16 @@
                 <div class="heading">
                     <h2>Garden Angels</h2>
                 </div>
-            </div><button class="btn btn-primary" type="button">Save</button>
+            </div>
+
             <div class="table-responsive table-bordered">
-                <table class="table table-striped table-bordered">
-                    <thead>
-                        <tr>
-                            <th>Applicant</th>
-                            <th>Accept/Reject</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>NAME</td>
-                            <td>
-                                <div class="btn-group" role="group"><button class="btn btn-primary" type="button">Accept</button><button class="btn btn-primary" type="button">Reject</button></div>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>NAME</td>
-                            <td>
-                                <div class="btn-group" role="group"><button class="btn btn-primary" type="button">Accept</button><button class="btn btn-primary" type="button">Reject</button></div>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+            <div id='pending_angels'></div>
             </div>
+
             <div class="table-responsive">
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>Garden Angels</th>
-                            <th></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>NAME</td>
-                        </tr>
-                        <tr>
-                            <td>NAME</td>
-                        </tr>
-                    </tbody>
-                </table>
+            <div id="accepted_angels"></div>
             </div>
+
         </section>
     </main>
 
@@ -89,6 +56,84 @@
     <script src="assets/bootstrap/js/bootstrap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pikaday/1.6.1/pikaday.min.js"></script>
     <script src="assets/js/theme.js"></script>
+
+    <script type="text/javascript"></script>
+
+    <script>
+        $(document).ready(function(){
+            $.get("/pull_pending_angels", function(data, status){
+                var content = "";
+                //create table
+
+                content += "<table class=" + 'table table-striped table-bordered' + "> "+
+                                "<thead> "+
+                                    "<tr> "+
+                                        "<th style=" + '\"width: 33%\"' + ">Applicant</th> "+
+                                        "<th style=" + '\"width: 33%\"' + ">Status</th> "+
+                                        "<th style=" + '\"width: 33%\"' + ">Accept/Reject</th> "+
+                                    "</tr> "+
+                                "</thead> "+
+                                "<tbody>";
+                data.forEach((d) => {
+                    content += "<tr> "+
+                            "<td>"+d.Name+"</td> "+
+                            "<td>"+d.userStatus+"</td> "+
+                            "<td> "+
+                                "<div class="+"btn-group"+" role="+"group"+"> "+
+                                    "<form style=\"all:unset\" method="+"post"+" action=\"/update_angels/"  + d.email + "\">" +
+                                    "<button class='" + "btn btn-primary" + "' name="+"form_submit"+" value="+"accept"+" type="+"submit"+">Accept</button> "+
+                                    "<button class='" + "btn btn-primary" + "' name="+"form_submit"+" value="+"reject"+" type="+"submit"+" onclick=\"return confirm('Rejecting will delete this user. Are you sure you would like to reject?')\" >Reject</button> "+
+                                    "</form>" +
+                                "</div> "+
+                            "</td> "+
+                            "</tr>";
+                    console.log(d.Name);
+                    console.log(d.userStatus);
+                });
+
+                content += "</tbody> "+
+                        "</table> "+
+                        "</div>";
+
+                //end table
+                document.getElementById('pending_angels').innerHTML = content;
+            });
+        });
+    </script>
+
+
+
+    <script>
+        $(document).ready(function(){
+            $.get("/pull_accepted_angels", function(data, status){
+                var content = "";
+
+                content += "<div class=" + 'table-responsive'+ "> "+
+                                    "<table class=" +'table'+"> "+
+                                        "<thead> "+
+                                            "<tr> "+
+                                                "<th>Garden Angels</th> "+
+                                            "</tr> "+
+                                       "</thead> "+
+                                        "<tbody> ";
+
+                data.forEach((d) => {
+                    content += "<tr> "+
+                                "<td>"+d.Name+"</td> "+
+                                "</tr> ";
+
+                    console.log(d.Name);
+                    console.log(d.userStatus);
+                });
+
+                content += "</tbody> "+
+                            "</table> "+
+                            "</div>";
+
+                document.getElementById('accepted_angels').innerHTML = content;
+            });
+        });
+    </script>
 </body>
 
 </html>

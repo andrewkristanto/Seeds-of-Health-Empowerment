@@ -205,6 +205,62 @@ app.get('/pull_survey', urlencodedParser, function(req, res){
   });
 });
 
+//---------------------
+app.get('/pull_pending_angels', urlencodedParser, function(req, res){
+  console.log("Arrived on Garden Angel page.");
+  con.query("SELECT concat(firstName, ' ', lastName) as Name, userStatus, email " +
+            "FROM User " +
+            "WHERE role = 2 and userStatus = \""+"pending"+ "\" ", function(err,rows) {
+      if (err) throw err;
+      console.log('Data received from Db:\n');
+      console.log(rows);
+      res.json(rows)
+  });
+});
+
+app.get('/pull_accepted_angels', urlencodedParser, function(req, res){
+  console.log("Arrived on Garden Angel page.");
+  con.query("SELECT concat(firstName, ' ', lastName) as Name, userStatus " +
+            "FROM User " +
+            "WHERE role = 2 and userStatus = \""+"accepted"+ "\" ", function(err,rows) {
+      if (err) throw err;
+      console.log('Data received from Db:\n');
+      console.log(rows);
+      res.json(rows)
+  });
+});
+
+app.post('/update_angels/:query', urlencodedParser, function(req, res){
+  console.log("Received accept/reject response");
+  var n = req.body.form_submit;
+  var email = req.params.query;
+  console.log(n);
+  console.log(email);
+  var query = "";
+
+  if (n == "accept") {
+    console.log("Accepting User");
+    query = "UPDATE User SET userStatus = " + "\"accepted\"" + " WHERE email = " + "\"" + email +  "\"" + "";
+    console.log(query)
+  } else if (n == "reject") {
+    query = "DELETE FROM User WHERE email = " + "\"" + email +  "\"" + "";
+    console.log("Rejecting User, deleting account");
+  }
+
+    con.query(query, function(err) {
+    if (err) {
+      console.log(err)
+      console.log("Error Accepting/Rejecting Gardener");
+      res.redirect(req.get('referer'));
+    } else {
+      console.log("Successfully Accepted/Rejected Gardener");
+      res.redirect(req.get('referer'));
+    }
+  });
+
+});
+
+//---------------------
 // UPDATE ======================================================================================================================
 app.post('/update_profile',urlencodedParser,  function(req, res) {
   var fname = req.body.fname;

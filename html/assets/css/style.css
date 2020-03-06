@@ -1,8 +1,22 @@
 .nav-link button{
+	padding: 0;
+	margin: 0;
     background: transparent;
     border: none;
 }
 .nav-link form{
+	padding: 0;
+	margin: 0;
+    background: transparent;
+    border: none;
+}
+ul{
+	padding: 0;
+	margin: 0;
+}
+.comments button{
+	margin-right: 75px;
+	margin-left: 75px;
     background: transparent;
     border: none;
 }

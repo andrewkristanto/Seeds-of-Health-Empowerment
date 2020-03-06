@@ -23,6 +23,7 @@ var cur_user = null
  * 2 - Angel
  */
 var cur_role = null
+var cur_post = null
 
 var api = express.Router();
 
@@ -89,6 +90,13 @@ app.get("/surveydata", urlencodedParser,  function(req, res) {
 
 app.get("/angelapplication", urlencodedParser,  function(req, res) {
   res.sendFile(path.join(__dirname,'./html/angel_application.html'));
+});
+
+app.post("/posts", urlencodedParser, function(req, res) {
+  cur_post = req.body.postId;
+  console.log(cur_post);
+  console.log(req.body);
+  res.sendFile(path.join(__dirname,'./html/posts.html'));
 });
 
 // LOGIN =========================================================================================================================
@@ -173,7 +181,7 @@ app.post('/register',urlencodedParser,  function(req, res) {
 // PULL ==================================================================================================================================
 app.get('/pull_profile',urlencodedParser,  function(req, res) {
   console.log("Arrived on profile page.");
-  con.query("SELECT * FROM User WHERE Email = '" + cur_user + "'", function(err,rows) {
+  con.query("SELECT * FROM User WHERE Email = '" + cur_user + "';", function(err,rows) {
       if (err) throw err;
       console.log('Data received from Db:\n');
       console.log(rows);
@@ -183,7 +191,7 @@ app.get('/pull_profile',urlencodedParser,  function(req, res) {
 
 app.get('/pull_notifications', urlencodedParser, function(req, res){
   console.log("Arrived on notifications page.");
-  con.query("SELECT * FROM Notifications WHERE Email = '" + cur_user + "'", function(err,rows) {
+  con.query("SELECT * FROM Notifications WHERE Email = '" + cur_user + "';", function(err,rows) {
       if (err) throw err;
       console.log('Data received from Db:\n');
       console.log(rows);
@@ -197,7 +205,7 @@ app.get('/pull_survey', urlencodedParser, function(req, res){
             "FROM SurveyQuestions " +
             "LEFT JOIN SurveyAnswers on SurveyQuestions.qID = SurveyAnswers.qID " +
             "LEFT JOIN SurveyResponses on SurveyQuestions.qID = SurveyResponses.qID " +
-            "WHERE SurveyResponses.email='" + cur_user + "' and response=''", function(err,rows) {
+            "WHERE SurveyResponses.email='" + cur_user + "' and response='';", function(err,rows) {
       if (err) throw err;
       console.log('Data received from Db:\n');
       console.log(rows);
@@ -205,7 +213,38 @@ app.get('/pull_survey', urlencodedParser, function(req, res){
   });
 });
 
-//---------------------
+app.get('/pull_posts', urlencodedParser, function(req, res){
+  console.log("Arrived on home page.");
+  con.query("SELECT User.firstName, User.lastName, Posts.postId, Posts.postDate, Posts.postText " +
+            "FROM Posts " +
+            "LEFT JOIN User on Posts.email = User.email " + 
+            "ORDER BY Posts.postDate ASC;" , function(err,rows) {
+      if (err) throw err;
+      console.log('Data received from Db:\n');
+      console.log(rows);
+      res.json(rows)
+  });
+});
+
+app.get('/pull_comments', urlencodedParser, function(req, res){
+  console.log("Arrived on posts page.");
+  var query = "SELECT pUser.firstName as postFName, pUser.lastName as postLName, Posts.postId, Posts.postDate, Posts.postText, cUser.firstName as commentFName, cUser.lastName as commentLName, Comments.commentText, Comments.commentDate " +
+              "FROM Posts " +
+              "LEFT JOIN Comments on Posts.postId = Comments.postId " +
+              "LEFT JOIN User pUser on Posts.email = pUser.email " +
+              "LEFT JOIN User cUser on Comments.email = cUser.email " +
+              "WHERE Posts.postId='" + cur_post + "' " + 
+              "ORDER BY Comments.commentDate ASC;";
+  console.log(query);
+
+  con.query(query, function(err,rows) {
+      if (err) throw err;
+      console.log('Data received from Db:\n');
+      console.log(rows);
+      res.json(rows)
+  });
+});
+
 app.get('/pull_pending_angels', urlencodedParser, function(req, res){
   console.log("Arrived on Garden Angel page.");
   con.query("SELECT concat(firstName, ' ', lastName) as Name, userStatus, email " +
@@ -260,7 +299,6 @@ app.post('/update_angels/:query', urlencodedParser, function(req, res){
 
 });
 
-//---------------------
 // UPDATE ======================================================================================================================
 app.post('/update_profile',urlencodedParser,  function(req, res) {
   var fname = req.body.fname;
@@ -347,11 +385,49 @@ app.post('/submit_survey/:query',urlencodedParser,  function(req, res) {
 
   con.query(query, function(err) {
     if (err) {
-      console.log("Submit survey attempt failed");
+      console.log("Submit survey attempt failed.");
       res.redirect(req.get('referer'));
     } else {
-      console.log("Submit survey success");
+      console.log("Submit survey success.");
       res.redirect(req.get('referer'));
     }
   });
+});
+
+app.post('/submit_post', urlencodedParser, function(req, res) {
+  console.log("Received post response");
+  var postText = req.body.postText;
+
+  if (postText.length > 0) {
+    var query = "INSERT INTO Posts (email, role, postText) VALUES ('" + cur_user + "', '" + cur_role + "', '" + postText + "');";
+    console.log(query);
+
+    con.query(query, function(err) {
+      if(err) {
+        console.log("Submit post attempt failed.");;
+      } else {
+        console.log("Submit post success.");
+      }
+    });
+  }
+  res.sendFile(path.join(__dirname,'./html/home.html'));
+});
+
+app.post('/submit_comment', urlencodedParser, function(req, res) {
+  console.log("Received comment response");
+  var commentText = req.body.commentText;
+
+  if (commentText.length > 0) {
+    var query = "INSERT INTO Comments (email, role, postId, commentText) VALUES ('" + cur_user + "', '" + cur_role + "', '" + cur_post + "', '" + commentText + "');";
+    console.log(query);
+
+    con.query(query, function(err) {
+      if(err) {
+        console.log("Submit comment attempt failed.");;
+      } else {
+        console.log("Submit comment success.");
+      }
+    });
+  }
+  res.sendFile(path.join(__dirname, './html/posts.html'))
 });

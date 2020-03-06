@@ -33,9 +33,15 @@
     </nav>
     <main class="page cv-page">
         <section class="portfolio-block block-intro border-bottom" style="padding: 32px;padding-top: 70px;padding-bottom: 40px;opacity: 0.60;background-color: rgb(94,121,189);">
-            <div class="container border rounded" style="background-color: #ffffff;padding: 0px 12px;padding-right: 1px;">
+            <div class="container border rounded" style="background-color: #ffffff;padding: 0px 20px;padding-right: 1px;">
                 <div class="about-me" style="padding: 12px;">
-                    <p style="font-size: 30px;">Create a Post</p><textarea class="form-control" style="padding-right: 12px;"></textarea></div><a class="btn btn-outline-primary" role="button" href="#" style="padding-top: 6px;margin-bottom: 10px;margin-top: 10px;">Post</a></div>
+                    <form method="post" action="/submit_post">
+                        <p style="font-size: 30px;">Create a Post</p>
+                        <textarea name="postText" class="form-control" placeholder="Write something...." style="padding-right: 12px;"></textarea>
+                        <button class="btn btn-outline-primary" type="submit" style="padding-top: 6px;margin-bottom: 10px;margin-top: 10px;">Post</button>
+                    </form>
+                </div>
+            </div>
         </section>
         <section class="portfolio-block cv">
             <div class="container">
@@ -43,7 +49,7 @@
                     <div class="heading">
                         <h2 class="text-center">Community Feed</h2>
                     </div>
-                    <div class="item">
+                    <!-- <div class="item">
                         <div class="row">
                             <div class="avatar" style="background-image:url(&quot;assets/img/avatars/avatar.jpg&quot;);"></div>
                             <div class="col d-md-flex d-lg-flex justify-content-md-center align-items-md-center justify-content-lg-center align-items-lg-center" style="height: 99px;"><img src="assets/img/profile.png" style="width: 65px;"></div>
@@ -53,12 +59,9 @@
                             <div class="col d-md-flex d-lg-flex justify-content-md-end align-items-md-center justify-content-lg-center align-items-lg-center"><span class="d-lg-flex justify-content-lg-center align-items-lg-center period" style="font-size: 15px;">&nbsp;2 hours ago</span></div>
                         </div>
                         <p class="text-muted" style="margin-right: 75px;margin-left: 75px;">How often should I water my tomatoes?</p>
-                        <div></div><a href="#" style="margin-right: 75px;margin-left: 75px;">See comments...</a>
-                        <p style="margin-bottom: 0px;margin-left: 75px;">Write a comment.</p>
-                        <div class="row">
-                            <div class="col d-lg-flex align-items-lg-center"><input class="d-lg-flex" type="text" style="margin-left: 75px;"></div>
-                            <div class="col"><a class="btn btn-outline-primary" role="button" href="#">Post</a></div>
-                        </div>
+                        <form action="/post" method="get" style="all: unset">
+                            <button style="margin-right: 69px;margin-left: 69px;background: transparent;border: none;">See comments...</button>
+                        </form>
                     </div>
                     <div class="item">
                         <div class="row">
@@ -92,11 +95,8 @@
                         <div class="row">
                             <div class="col d-lg-flex align-items-lg-center"><input class="d-lg-flex" type="text" style="margin-left: 75px;"></div>
                             <div class="col"><a class="btn btn-outline-primary" role="button" href="#">Post</a></div>
-                        </div>
-                    </div>
-                </div>
-                <div class="hobbies group">
-                    <div class="heading"></div>
+                        </div> -->
+                    <!-- </div> -->
                 </div>
             </div>
         </section>
@@ -109,6 +109,16 @@
     <script src="assets/bootstrap/js/bootstrap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pikaday/1.6.1/pikaday.min.js"></script>
     <script src="assets/js/theme.js"></script>
+    <script>
+        $(document).ready(function(){
+            $.get("/pull_posts", function(data, status){
+                var heading = $("div.heading");
+                data.forEach((d) => {
+                    heading.after("<div class=\"item\" id=\"" + d.postId + "\"><div class=\"row\"><div class=\"avatar\" style=\"background-image:url(&quot;assets/img/avatars/avatar.jpg&quot;);\"></div><div class=\"col d-md-flex d-lg-flex justify-content-md-center align-items-md-center justify-content-lg-center align-items-lg-center\" style=\"height: 99px;\"><img src=\"assets/img/profile.png\" style=\"width: 65px;\"></div><div class=\"col-md-6 d-md-flex d-lg-flex justify-content-md-start align-items-md-center justify-content-lg-start align-items-lg-center\"><h3 class=\"text-left\" style=\"font-size: 20px;\">" + d.firstName + " " + d.lastName + "</h3></div><div class=\"col d-md-flex d-lg-flex justify-content-md-end align-items-md-center justify-content-lg-center align-items-lg-center\"><span class=\"d-lg-flex justify-content-lg-center align-items-lg-center period\" style=\"font-size: 15px;\">&nbsp;" + formatDate(d.postDate) + "</span></div></div><p class=\"text-muted\" style=\"font-size: 20px\">" + d.postText + "</p><form action=\"/posts\" method=\"post\" style=\"all: unset\"><input value=\"" + d.postId + "\" name=\"postId\" style=\"display: none\"></input><button style=\"background: transparent;border: none;\">See comments...</button></form></div>");
+                });
+            });
+        });
+    </script>
 </body>
 
 </html>

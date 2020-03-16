@@ -24,16 +24,15 @@ CREATE TABLE SurveyQuestions (
 	qID int NOT NULL AUTO_INCREMENT,
 	releaseDate Date NOT NULL,
 	questionType VARCHAR(50) NOT NULL,
-	PRIMARY KEY (qID, releaseDate)
+	PRIMARY KEY (qID)
 );
 CREATE TABLE SurveyResponses (
 	qID int NOT NULL AUTO_INCREMENT,
-	releaseDate Date NOT NULL,
     email VARCHAR(50) NOT NULL,
 	response VARCHAR(250) NOT NULL,
-	PRIMARY KEY (qID, response, releaseDate, email),
-	FOREIGN KEY (qID, releaseDate)
-		REFERENCES SurveyQuestions (qID, releaseDate)
+	PRIMARY KEY (qID, response, email),
+	FOREIGN KEY (qID)
+		REFERENCES SurveyQuestions (qID)
 			ON DELETE CASCADE
 			ON UPDATE CASCADE,
 	FOREIGN KEY (email)
@@ -43,11 +42,10 @@ CREATE TABLE SurveyResponses (
 );
 CREATE TABLE SurveyAnswers (
 	qID int NOT NULL AUTO_INCREMENT,
-	releaseDate Date NOT NULL,
 	answerChoice VARCHAR(50) NOT NULL,
-	PRIMARY KEY (qID, releaseDate, answerChoice),
-	FOREIGN KEY (qID, releaseDate)
-		REFERENCES SurveyQuestions (qID, releaseDate)
+	PRIMARY KEY (qID, answerChoice),
+	FOREIGN KEY (qID)
+		REFERENCES SurveyQuestions (qID)
 			ON DELETE CASCADE
 			ON UPDATE CASCADE
 );

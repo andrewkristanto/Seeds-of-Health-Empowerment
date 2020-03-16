@@ -111,25 +111,26 @@ app.post('/',urlencodedParser,  function(req, res) {
     if (err){
       res.redirect(req.get('referer'));
     }
-    if (!result.length){
+    if (!result){
       console.log("Invalid username")
       res.redirect(req.get('referer'));
+    } else {
+      var pw_hash = result[0]["password"];
+      var email = result[0]["email"];
+      var role = result[0]["role"];
+      bcrypt.compare(password, pw_hash, function(err, res2) {
+        if (res2){
+          console.log("Authenticated");
+          cur_user = email;
+          cur_role = role;
+          console.log(cur_user)
+          res.sendFile(path.join(__dirname,'./html/home.html'));
+        } else {
+          console.log("Invalid password")
+          res.redirect(req.get('referer'));
+        }
+      });
     }
-    var pw_hash = result[0]["password"];
-    var email = result[0]["email"];
-    var role = result[0]["role"];
-    bcrypt.compare(password, pw_hash, function(err, res2) {
-      if (res2){
-        console.log("Authenticated");
-        cur_user = email;
-        cur_role = role;
-        console.log(cur_user)
-        res.sendFile(path.join(__dirname,'./html/home.html'));
-      } else {
-        console.log("Invalid password")
-        res.redirect(req.get('referer'));
-      }
-    });
   });
 });
 
@@ -191,7 +192,7 @@ app.get('/pull_profile',urlencodedParser,  function(req, res) {
 
 app.get('/pull_notifications', urlencodedParser, function(req, res){
   console.log("Arrived on notifications page.");
-  con.query("SELECT * FROM Notifications WHERE Email = '" + cur_user + "';", function(err,rows) {
+  con.query("SELECT * FROM Notifications WHERE Email = '" + cur_user + "' ORDER BY notifDate;", function(err,rows) {
       if (err) throw err;
       console.log('Data received from Db:\n');
       console.log(rows);
@@ -201,7 +202,7 @@ app.get('/pull_notifications', urlencodedParser, function(req, res){
 
 app.get('/pull_survey', urlencodedParser, function(req, res){
   console.log("Arrived on survey page.");
-  con.query("SELECT SurveyQuestions.qID, SurveyQuestions.question, SurveyAnswers.answerChoice, SurveyResponses.response, SurveyResponses.releaseDate " +
+  con.query("SELECT SurveyQuestions.qID, SurveyQuestions.question, SurveyAnswers.answerChoice, SurveyQuestions.questionType " +
             "FROM SurveyQuestions " +
             "LEFT JOIN SurveyAnswers on SurveyQuestions.qID = SurveyAnswers.qID " +
             "LEFT JOIN SurveyResponses on SurveyQuestions.qID = SurveyResponses.qID " +
@@ -267,36 +268,6 @@ app.get('/pull_accepted_angels', urlencodedParser, function(req, res){
       console.log(rows);
       res.json(rows)
   });
-});
-
-app.post('/update_angels/:query', urlencodedParser, function(req, res){
-  console.log("Received accept/reject response");
-  var n = req.body.form_submit;
-  var email = req.params.query;
-  console.log(n);
-  console.log(email);
-  var query = "";
-
-  if (n == "accept") {
-    console.log("Accepting User");
-    query = "UPDATE User SET userStatus = " + "\"accepted\"" + " WHERE email = " + "\"" + email +  "\"" + "";
-    console.log(query)
-  } else if (n == "reject") {
-    query = "DELETE FROM User WHERE email = " + "\"" + email +  "\"" + "";
-    console.log("Rejecting User, deleting account");
-  }
-
-    con.query(query, function(err) {
-    if (err) {
-      console.log(err)
-      console.log("Error Accepting/Rejecting Gardener");
-      res.redirect(req.get('referer'));
-    } else {
-      console.log("Successfully Accepted/Rejected Gardener");
-      res.redirect(req.get('referer'));
-    }
-  });
-
 });
 
 // UPDATE ======================================================================================================================
@@ -372,6 +343,36 @@ app.post('/update_password',urlencodedParser,  function(req, res) {
   }
 });
 
+app.post('/update_angels/:query', urlencodedParser, function(req, res){
+  console.log("Received accept/reject response");
+  var n = req.body.form_submit;
+  var email = req.params.query;
+  console.log(n);
+  console.log(email);
+  var query = "";
+
+  if (n == "accept") {
+    console.log("Accepting User");
+    query = "UPDATE User SET userStatus = " + "\"accepted\"" + " WHERE email = " + "\"" + email +  "\"" + "";
+    console.log(query)
+  } else if (n == "reject") {
+    query = "DELETE FROM User WHERE email = " + "\"" + email +  "\"" + "";
+    console.log("Rejecting User, deleting account");
+  }
+
+    con.query(query, function(err) {
+    if (err) {
+      console.log(err)
+      console.log("Error Accepting/Rejecting Gardener");
+      res.redirect(req.get('referer'));
+    } else {
+      console.log("Successfully Accepted/Rejected Gardener");
+      res.redirect(req.get('referer'));
+    }
+  });
+
+});
+
 // SUBMIT ====================================================================================================================================
 
 app.post('/submit_survey/:query',urlencodedParser,  function(req, res) {
@@ -404,7 +405,8 @@ app.post('/submit_post', urlencodedParser, function(req, res) {
 
     con.query(query, function(err) {
       if(err) {
-        console.log("Submit post attempt failed.");;
+        console.log("Submit post attempt failed.");
+        throw err;
       } else {
         console.log("Submit post success.");
       }
@@ -423,11 +425,66 @@ app.post('/submit_comment', urlencodedParser, function(req, res) {
 
     con.query(query, function(err) {
       if(err) {
-        console.log("Submit comment attempt failed.");;
+        console.log("Submit comment attempt failed.");
+        throw err;
       } else {
         console.log("Submit comment success.");
       }
     });
   }
-  res.sendFile(path.join(__dirname, './html/posts.html'))
+  res.sendFile(path.join(__dirname, './html/posts.html'));
+});
+
+app.post('/submit_survey_question', urlencodedParser, function(req, res) {
+  console.log("Received survey question");
+  console.log(req.body);
+  var question = req.body.question;
+  var targetUsers = req.body.targetUsers;
+  var questionType = req.body.questionType;
+
+  var query = "INSERT INTO SurveyQuestions (question, questionType) VALUES ('" + question + "', '" + questionType + "');";
+  console.log(query);
+
+  con.query(query, function(err) { // insert into SurveyQuestions
+    if (err) {
+      console.log("Submit survey question failed.");
+      throw err;
+    } else {
+      var query2 = "SELECT qID FROM SurveyQuestions ORDER BY qID DESC LIMIT 1;";
+      con.query(query2, function(err,rows) { // get qID to insert into SurveyAnswers and SurveyResponses
+          if (err) throw err;
+
+          console.log('Data received from Db:\n');
+          console.log(rows);
+          var qID = rows[0].qID;
+
+          if (questionType == "mc") { // insert all the answer choices for multiple choice
+            var choices = req.body.choices;
+            choices.forEach((choice) => {
+              var query3 = "INSERT INTO SurveyAnswers (qID, answerChoice) VALUES ('" + qID + "', '" + choice + "');";
+              console.log(query3);
+              con.query(query3);
+            });
+          }
+
+          var query4 = "SELECT email FROM User";
+          if (targetUsers != 0) {
+            query4 += " WHERE role=" + targetUsers + ";"; 
+          }
+          con.query(query4, function(err,rows) { // get all target users' email
+            if (err) throw err;
+
+            console.log('Data received from Db:\n');
+            console.log(rows);
+
+            rows.forEach((d) => { // insert emails into SurveyResponses
+              var query5 = "INSERT INTO SurveyResponses (email, qID, response) VALUES ('" + d.email + "', '" + qID + "', '');";
+              console.log(query5);
+              con.query(query5);
+            });
+          });
+      });
+    }
+  });
+  res.sendFile(path.join(__dirname, './html/create-survey.html'));
 });

@@ -40,8 +40,7 @@
                         <table class="table" id = "notifTable">
                             <thead>
                                 <tr>
-                                    <th>Date</th>
-                                    <th>Time</th>
+                                    <th>Date & Time</th>
                                     <th>Notification</th>
                                 </tr>
                             </thead>
@@ -65,7 +64,7 @@
             $.get("/pull_notifications", function(data, status){
                 var table = $("#notifTable thead");
                 data.forEach((d) =>{
-                    table.after("<tr><td>" + d.notifDate.split("T")[0] + "</td><td>" + d.notifTime + "</td><td>" + d.content + "</td></tr>");
+                    table.after("<tr><td>" + formatDate(d.notifDate) + "</td><td>" + d.content + "</td></tr>");
                 });
             });
         });

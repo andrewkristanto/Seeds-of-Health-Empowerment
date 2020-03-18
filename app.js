@@ -161,12 +161,25 @@ app.post('/register',urlencodedParser,  function(req, res) {
       var query = "INSERT INTO User (password, firstName, lastName, street, city, state, zipcode, email, phoneNumber, userStatus, lastLogin, role) "+
       "VALUES ('" + hash + "', '" + fname + "', '" + lname + "', '" + street + "', '" + city + "', '" + state + "', '" + zip + "', '" + email + "', '" + phone + "', 'pending', null, " + role + ");";
 
+      var query2 = "INSERT INTO NotificationSettings (email) VALUES ('" + email + "');";
+
       console.log(query);
+      console.log(query2);
       con.query(query, function(err) {
         if (err) {
           console.log("Registration attempt failed");
+          console.log(err);
           res.redirect(req.get('referer'));
         } else {
+          con.query(query2, function(err) {
+            if (err) {
+              console.log("Failed to add notification settings");
+              console.log(err);
+              res.redirect(req.get('referer'));
+            } else {
+              console.log("Notification settings added");
+            }
+          });
           console.log("Registration success");
           res.sendFile(path.join(__dirname,'./html/login.html'));
         }
@@ -299,6 +312,16 @@ app.post('/update_angels/:query', urlencodedParser, function(req, res){
 
 });
 
+app.get('/pull_settings',urlencodedParser,  function(req, res) {
+  console.log("Arrived on settings page.");
+  con.query("SELECT * FROM NotificationSettings WHERE email = '" + cur_user + "';", function(err,rows) {
+      if (err) throw err;
+      console.log('Data received from Db:\n');
+      console.log(rows);
+      res.json(rows)
+  });
+});
+
 // UPDATE ======================================================================================================================
 app.post('/update_profile',urlencodedParser,  function(req, res) {
   var fname = req.body.fname;
@@ -370,6 +393,26 @@ app.post('/update_password',urlencodedParser,  function(req, res) {
     console.log("Invalid input");
     res.redirect(req.get('referer'));
   }
+});
+
+app.post('/updateSettings', urlencodedParser, function(req, res) {
+  var toggle = req.body.toggle;
+  var frequency = req.body.frequency;
+  var method = req.body.method;
+  
+  var query = "UPDATE NotificationSettings SET toggle='" + toggle + "', frequency='" + frequency + "', method='" + method + "' WHERE email='" + cur_user + "';";
+  console.log(query);
+
+  con.query(query, function(err) {
+    if (err) {
+      console.log("Update settings attempt failed");
+      res.redirect(req.get('referer'));
+    } else {
+      console.log("Updated settings successfully");
+      res.redirect(req.get('referer'));
+    }
+  });
+
 });
 
 // SUBMIT ====================================================================================================================================

@@ -31,25 +31,38 @@
             </div>
         </div>
     </nav>
-    <main class="page contact-page">
+    <main class="page contact-page"> 
         <section class="portfolio-block contact">
             <div class="container">
                 <div class="heading">
                     <h2>Settings</h2>
                 </div>
-                <form><label>Notifications</label>
+                <form method="POST" action="/updateSettings"><label>Notifications</label>
                     <div class="form-group">
-                        <div class="btn-group" role="group"><button class="btn btn-primary" type="button">On</button><button class="btn btn-primary" type="button">Off</button></div>
+                        <select class="form-control" id="toggle" name="toggle" required>
+                            <option value="" id="toggle" disabled selected hidden></option>
+                            <option value="On">On</option>
+                            <option value="Off">Off</option>
+                        </select>
                     </div><label>Notification Frequency</label>
                     <div class="form-group">
-                        <div class="dropdown show"><button class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="true" type="button">Choose one</button>
-                            <div class="dropdown-menu" role="menu"><a class="dropdown-item" role="presentation" href="#">Immediate</a><a class="dropdown-item" role="presentation" href="#">Every 8 hours</a><a class="dropdown-item" role="presentation" href="#">Once a day</a></div>
-                        </div>
+                        <select class="form-control" id="frequency" name="frequency" required>
+                            <option value="" id="frequency" disabled selected hidden></option>
+                            <option value="Immediate">Immediate</option>
+                            <option value="Every 8 hours">Every 8 Hours</option>
+                            <option value="Once a day">Once a Day</option>
+                        </select>
                     </div><label>Notification Method</label>
                     <div class="form-group">
-                        <div class="dropdown show"><button class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="true" type="button">Choose one</button>
-                            <div class="dropdown-menu" role="menu"><a class="dropdown-item" role="presentation" href="#">Email</a><a class="dropdown-item" role="presentation" href="#">Phone</a><a class="dropdown-item" role="presentation" href="#">Email and Phone</a></div>
-                        </div>
+                        <select class="form-control" id="method" name="method" required>
+                            <option value="" id="method" disabled selected hidden></option>
+                            <option value="Email">Email</option>
+                            <option value="Phone">Phone</option>
+                            <option value="Email and Phone">Email and Phone</option>
+                        </select>
+                    </div>
+                    <div class="text-center">
+                        <button class="btn btn-primary" type="submit" style="width: 30%;margin-left: 2%;">Update</button>
                     </div>
                 </form>
             </div>
@@ -67,6 +80,18 @@
     <script src="assets/bootstrap/js/bootstrap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pikaday/1.6.1/pikaday.min.js"></script>
     <script src="assets/js/theme.js"></script>
+
+    <script>
+        $(document).ready(function(){
+            $.get("/pull_settings", function(data, status){
+                data.forEach((d) => {
+                    document.getElementById('toggle').value = d.toggle;
+                    document.getElementById('frequency').value = d.frequency;
+                    document.getElementById('method').value = d.method;
+                });
+            });
+        });
+    </script>
 </body>
 
 </html>

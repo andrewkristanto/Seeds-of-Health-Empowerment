@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
-    <title>Contact - Brand</title>
+    <title>View Survey Data</title>
     <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:300,400,700">
     <link rel="stylesheet" href="assets/fonts/ionicons.min.css">
@@ -40,18 +40,33 @@
                     <h2>View Survey Data</h2>
                 </div>
             </div>
-            <div class="container">
-                <div class="dropdown" style="padding-bottom: 30px;"><button class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false" type="button" style="width: 30%;">Select Survey&nbsp;</button>
-                    <div class="dropdown-menu" role="menu"><a class="dropdown-item" role="presentation" href="#">First Item</a><a class="dropdown-item" role="presentation" href="#">Second Item</a><a class="dropdown-item" role="presentation" href="#">Third Item</a></div>
-                </div>
+            <div class="container" id='suvrey_dropdown'>
+            
+                
             </div>
-            <div class="container">
-                <h4>Question:&nbsp; On a scale of 1 to 5, how would you rate your&nbsp; stress levels after starting your home garden?</h4>
+
+             <div class="container" id='drop_down'>
+<!--                 <select id="test_dropdown" class="form-control" style="width: 30%; display: inline" onchange="test();">
+                <option disabled selected>Select Survey</option>
+                <option value="1">aaaa</option>
+                <option value="2">bbbbb</option>
+                </select> -->
+             </div> 
+
+
+
+
+            </div>
+            <div class="container" id="question">
+                <!-- <h4>Question:&nbsp; On a scale of 1 to 5, how would you rate your&nbsp; stress levels after starting your home garden?</h4> -->
             </div>
             <div>
                  <div id="chart_div" class="container" style="width:80%"></div>
             </div>          
             <div class="container"></div>
+            <div id="test"></div>
+
+
         </section>
     </main>
     <script src="assets/js/jquery.min.js"></script>
@@ -59,41 +74,104 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pikaday/1.6.1/pikaday.min.js"></script>
     <script src="assets/js/theme.js"></script>
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+
     <script type="text/javascript">
-        google.charts.load('current', {packages: ['corechart', 'bar']});
-        google.charts.setOnLoadCallback(drawBasic);
+        $(document).ready(function(){
+            $.get("/pull_survey_question", function(data, status){
+                console.log(data);
+                var content = "<select id=\"survey_select\" class=\"form-control\" style=\"width: 30%; display: inline; margin-bottom: 5%;\" onchange=\"contentLoader();\"><option disabled selected>Select Survey</option>";
+                data.forEach((d) => {
+                    content += "<option value=\"" +d.qID+ "##" +d.question+ "\">"+ d.qID+ " - "+d.question+"</option>"
 
-        function drawBasic() {
+                });
+                content += "</select>";
+                document.getElementById('suvrey_dropdown').innerHTML = content;
+            });
+          });
+    </script>
 
-              var data = new google.visualization.DataTable();
-              data.addColumn('string', 'Responce');
-              data.addColumn('number', 'Number of People');
-           
+    <script type="text/javascript">
+        function contentLoader(){
+            values = document.getElementById('survey_select').value.split('##');
+            var id = values[0];
+            var question = values[1];
 
-              data.addRows([
-                ['1(Low)', 11],
-                ['2', 8],
-                ['3', 7],
-                ['4', 5],
-                ['5(High)', 1]
-              ]);
+            var type = "";
 
-              var options = {
-                colors: ['#5981f8'],
-                hAxis: {
-                  title: 'Responce',
-                },
-                vAxis: {
-                  title: 'Number of Users'   
-                }
-              };
+            $(document).ready(function(){
+                $.get("/pull_survey_question_type/" +id+ "", function(data, status){
+                    var type = data[0].questionType;
+                        if (type == 'mc') {
+                            google.charts.load('current', {packages: ['corechart', 'bar']});
+                            google.charts.setOnLoadCallback(drawBasicGraph);                            
+                        } else if (type == 'fr') {
+                            var content = "";
+                            $(document).ready(function(){
+                                $.get("/pull_survey_data_fr/" +id+ "", function(data, status){
+                                    if (data[0] == null) {
+                                        content += "<h5 class=\"no-result\">No survey results for this question at this time.</h5>";
+                                    } else {
+                                        content += "<div class=\"fr-response\">";
+                                        var count = 1;
+                                        data.forEach((d) => {
+                                            content += "<h5>" +count+ ". " +  d.response + "</h5>";
+                                            count++;
+                                        });
+                                    }
+                                document.getElementById('question').innerHTML = "<h4>Question: "+question+"</h4>";
+                                content += "</div>";
+                                document.getElementById('chart_div').innerHTML = content;
+                                });
+                            });
 
-              var chart = new google.visualization.ColumnChart(
-                document.getElementById('chart_div'));
+                            
+                        }
+                });
+            });
 
-              chart.draw(data, options);
+
+            function drawBasicGraph() {
+                $(document).ready(function(){
+                    $.get("/pull_survey_data_mc/" +id+ "", function(survey_data, status){
+                        var data = new google.visualization.DataTable();
+                        data.addColumn('string', 'Response');
+                        data.addColumn('number', 'Number of People');
+                        var allZero = true;
+                        survey_data.forEach((d) => {
+                            if (d.count != 0) {
+                                allZero = false;
+                            }
+                            data.addRow([d.answerChoice, d.count]);
+                            
+                        });
+
+                        var options = {
+                            hAxis: {
+                                title: 'Response',
+                            },
+                            vAxis: {
+                                title: 'Number of Users',
+                                format: '0',
+                                viewWindow:{
+                                    min:0
+                                }
+
+                            }
+                        };
+
+                        document.getElementById('question').innerHTML = "<h4>Question: "+question+"</h4>";
+
+                        if (allZero) {
+                            document.getElementById('chart_div').innerHTML = "<h5 class=\"no-result\">No survey results for this question at this time.</h5>";
+                        } else{
+                            document.getElementById('chart_div').innerHTML = "";
+                            var chart = new google.visualization.ColumnChart(document.getElementById('chart_div'));
+                            chart.draw(data, options);
+                        }
+                    });
+                });
             }
+        }
     </script>
 </body>
-
 </html>

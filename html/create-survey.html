@@ -37,35 +37,57 @@
             <div class="container">
                 <h1 class="display-4" style="padding: 12px;">Create Survey</h1>
             </div>
-            <form action="create-survey.html">
-                <div class="container" style="padding: 25px;">
-                    <div class="form-group"><input class="form-control" type="text" placeholder="Survey Title"></div>
-                    <div class="form-group"><input class="form-control" type="text" placeholder="Survey Question"></div>
-                </div>
+            <form action="/submit_survey_question" method="post">
+                <div class="form-group"><input class="form-control" type="text" name="question" placeholder="Enter a survey question"></div>
                 <div class="container">
-                    <div class="dropdown">
-                        <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        Response Type
-                        </button>
-                        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                        <a class="dropdown-item" href="#">Free Answer</a>
-                        <a class="dropdown-item" href="#">Multiple Choice</a>
-                        </div>
+                    <div class="form-group"><label for="targetUsers">Target Users</label><select class="form-control" name="targetUsers">
+                        <option value="0">All</option>
+                        <option value="1">Gardeners</option>
+                        <option value="2">Garden Angels</option>
+                    </select></div>
+                    <div class="form-group">
+                        <label for="questionType">Question Type</label>
+                        <select class="form-control" name="questionType" onchange="toggleDisplay(this)">
+                            <option value="fr">Free Response</option>
+                            <option value="mc">Multiple Choice</option>
+                        </select>
                     </div>
-                    <div class="form-check"><input class="form-check-input" type="radio" id="formCheck-5" name="radio-group"><label class="form-check-label" for="formCheck-5">1 (Low) &nbsp;</label></div>
-                    <div class="form-check"><input class="form-check-input" type="radio" id="formCheck-4" name="radio-group"><label class="form-check-label" for="formCheck-4">2 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp;</label></div>
-                    <div class="form-check"><input class="form-check-input" type="radio" id="formCheck-3" name="radio-group"><label class="form-check-label" for="formCheck-3">3 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp;</label></div>
-                    <div class="form-check"><input class="form-check-input" type="radio" id="formCheck-2" name="radio-group"><label class="form-check-label" for="formCheck-2">4 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp;</label></div>
-                    <div class="form-check"><input class="form-check-input" type="radio" id="formCheck-1" name="radio-group"><label class="form-check-label" for="formCheck-1">5 (High)&nbsp;</label></div>
+                    <div class="form-group" id="MC" style="display: none">
+                        <label for="numChoices">Number of answer choices</label>
+                        <select class="form-control" name="numChoices" id="numChoices" onchange="toggleChoices(this)">
+                            <option value="0">Select number</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                            <option value="6">6</option>
+                        </select>
                     </div>
+                    <div id="choices"></div>
                 <div class="container" style="padding: 25px;"><button class="btn btn-primary" type="submit" style="width: 278px;height: 30px;margin-top: 10;padding: 0;font-size: 13;">Submit</button></div>
             </form>
         </section>
     </main>
     <script>
-        $(document).ready(function(){
-        $(".dropdown-toggle").dropdown();
-        });
+        function toggleDisplay(dropdown){
+            let val = dropdown.options[dropdown.selectedIndex].value;
+            let mc = document.getElementById("MC");
+            if (val == 'mc') {
+                mc.style.display = "block";
+            }
+            else {
+                mc.style.display = "none";
+            }
+        }
+
+        function toggleChoices(dropdown){
+            let num = dropdown.options[dropdown.selectedIndex].value;
+            let inputs = "";
+            for (let i = 1; i <= num; i++) {
+                    inputs += "<div class=\"form-group\"><input class=\"form-control\" type=\"text\" name=\"choices\" placeholder=\"Answer Choice " + i + "\" required></div>"
+            }
+            document.getElementById("choices").innerHTML = inputs;
+        }
     </script>
     <script src="assets/js/jquery.min.js"></script>
     <script src="assets/bootstrap/js/bootstrap.min.js"></script>

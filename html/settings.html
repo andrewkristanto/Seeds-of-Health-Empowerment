@@ -38,7 +38,9 @@
                 <div class="heading">
                     <h2>Settings</h2>
                 </div>
-                <form method="POST" action="/updateSettings"><label>Notifications</label>
+                <form method="POST" action="/updateSettings">
+                    <div id="alerts"></div>
+                    <label>Notifications</label>
                     <div class="form-group">
                         <select class="form-control" id="toggle" name="toggle" required>
                             <option value="" id="toggle" disabled selected hidden></option>
@@ -89,6 +91,13 @@
                     document.getElementById('toggle').value = d.toggle;
                     document.getElementById('frequency').value = d.frequency;
                     document.getElementById('method').value = d.method;
+                });
+            });
+
+            $.get("/pull_alerts", function(data, status){
+                var heading = $("#alerts");
+                data.forEach((d) => {
+                    heading.after("<div class=\"alert alert-" + d.type + "\" role=\"alert\"><strong>" + d.alert + "</strong><span class=\"close\" onclick=\"this.parentElement.style.display='none';\">&times;</span></div>");
                 });
             });
         });

@@ -39,7 +39,7 @@
                 </div>
                 <div class="about-me">
                     <div class="table-responsive">
-                        <table class="table" id = "notifTable">
+                        <table class="table" id="notifTable">
                             <thead>
                                 <tr>
                                     <th>Date & Time</th>
@@ -67,6 +67,9 @@
                 data.forEach((d) =>{
                     table.after("<tr><td>" + formatDate(d.notifDate) + "</td><td>" + d.content + "</td></tr>");
                 });
+                if (data.length == 0) {
+                    $("div.table-responsive").after("<br><h5 class=\"no-result\">No notifications</h5>");
+                }
             });
         });
     </script>

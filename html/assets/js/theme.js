@@ -9,7 +9,7 @@ function formatDate(date) {
     date[0] = date[0].slice(5, 10) + "-" + date[0].slice(0, 4);
 
     date[1] = date[1].slice(0, 5);
-    var hour = date[1].slice(0,2) - 4;
+    var hour = date[1].slice(0,2) - 3;
 
     if (hour < 0) {
         hour = hour + 24;

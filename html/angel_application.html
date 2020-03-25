@@ -35,21 +35,16 @@
         </div>
     </nav>
     <main class="page project-page">
-        <section class="portfolio-block project">
-            <div class="container">
-                <div class="heading">
-                    <h2>Garden Angels</h2>
-                </div>
+        <section class="portfolio-block block-intro">
+            <div class="heading">
+                <h2>Garden Angels</h2>
             </div>
+            <div id="alerts"></div>
 
-            <div class="table-responsive table-bordered">
-            <div id='pending_angels'></div>
+            <div class="about-me">
+                <div id='pending_angels'></div>
+                <div id="accepted_angels" style="margin: 100px auto"></div>
             </div>
-
-            <div class="table-responsive">
-            <div id="accepted_angels"></div>
-            </div>
-
         </section>
     </main>
 
@@ -66,7 +61,7 @@
                 var content = "";
                 //create table
 
-                content += "<table class=" + 'table table-striped table-bordered' + "> "+
+                content += "<table class=" + 'table' + "> "+
                                 "<thead> "+
                                     "<tr> "+
                                         "<th style=" + '\"width: 33%\"' + ">Applicant</th> "+
@@ -93,19 +88,17 @@
                 });
 
                 content += "</tbody> "+
-                        "</table> "+
-                        "</div>";
+                        "</table> ";
 
                 //end table
+
+                if (data.length == 0) {
+                    content += "<br><h5 class=\"no-result\">No users are currently requesting to be a garden angel</h5>";
+                }
+
                 document.getElementById('pending_angels').innerHTML = content;
             });
-        });
-    </script>
 
-
-
-    <script>
-        $(document).ready(function(){
             $.get("/pull_accepted_angels", function(data, status){
                 var content = "";
 
@@ -131,7 +124,18 @@
                             "</table> "+
                             "</div>";
 
+                if (data.length == 0) {
+                    content += "<br><h5 class=\"no-result\">No users are currently garden angels</h5>";
+                }
+
                 document.getElementById('accepted_angels').innerHTML = content;
+            });
+
+            $.get("/pull_alerts", function(data, status){
+                var header = $("#alerts");
+                data.forEach((d) => {
+                    header.after("<div class=\"alert alert-" + d.type + "\" role=\"alert\" style=\"margin: 10px auto; width: 50%;\"><strong>" + d.alert + "</strong><span class=\"close\" onclick=\"this.parentElement.style.display='none';\">&times;</span></div>");
+                });
             });
         });
     </script>

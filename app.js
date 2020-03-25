@@ -16,14 +16,15 @@ app.use('/assets/js', express.static('js'));
 // app.use(validator());
 
 var con;
-var cur_user = null
+var cur_user = null;
 /* Roles:
  * 0 - User
  * 1 - Gardener
  * 2 - Angel
  */
-var cur_role = null
-var cur_post = null
+var cur_role = null;
+var cur_post = null;
+var alerts = [];
 
 var api = express.Router();
 
@@ -47,7 +48,7 @@ while (con == null){
 
 //starts app
 app.listen(8000, () => {
-  console.log('SApp listening on port 8000!')
+  console.log('SApp listening on port 8000!');
 });
 
 //loads home page on start up
@@ -116,7 +117,8 @@ app.post('/',urlencodedParser,  function(req, res) {
       res.redirect(req.get('referer'));
     }
     if (!result){
-      console.log("Invalid username")
+      console.log("Invalid username");
+      alerts.push({alert: "Invalid username.", type: "danger"});
       res.redirect(req.get('referer'));
     } else {
       var pw_hash = result[0]["password"];
@@ -130,7 +132,8 @@ app.post('/',urlencodedParser,  function(req, res) {
           console.log(cur_user)
           res.sendFile(path.join(__dirname,'./html/home.html'));
         } else {
-          console.log("Invalid password")
+          console.log("Invalid password");
+          alerts.push({alert: "Invalid password.", type: "danger"});
           res.redirect(req.get('referer'));
         }
       });
@@ -155,9 +158,11 @@ app.post('/register',urlencodedParser,  function(req, res) {
 
   var valid = true;
   if (password.length < 8 || password.length > 20) {
+    alerts.push({alert: "Password must have a length between 8 and 20 characters.", type: "danger"});
     valid = false;
   }
   if (password != confirmpass) {
+    alerts.push({alert: "Passwords do not match.", type: "danger"});
     valid = false;
   }
 
@@ -173,6 +178,7 @@ app.post('/register',urlencodedParser,  function(req, res) {
       con.query(query, function(err) {
         if (err) {
           console.log("Registration attempt failed");
+          alerts.push("Registration attempt failed, please try again.");
           console.log(err);
           res.redirect(req.get('referer'));
         } else {
@@ -186,12 +192,14 @@ app.post('/register',urlencodedParser,  function(req, res) {
             }
           });
           console.log("Registration success");
+          alerts.push({alert: "Registered successfully!", type: "success"});
           res.sendFile(path.join(__dirname,'./html/login.html'));
         }
       });
     });
   } else {
     console.log("Invalid input");
+    console.log(alerts)
     res.redirect(req.get('referer'));
   }
 });
@@ -203,7 +211,7 @@ app.get('/pull_profile',urlencodedParser,  function(req, res) {
       if (err) throw err;
       console.log('Data received from Db:\n');
       console.log(rows);
-      res.json(rows)
+      res.json(rows);
   });
 });
 
@@ -213,7 +221,7 @@ app.get('/pull_notifications', urlencodedParser, function(req, res){
       if (err) throw err;
       console.log('Data received from Db:\n');
       console.log(rows);
-      res.json(rows)
+      res.json(rows);
   });
 });
 
@@ -227,7 +235,7 @@ app.get('/pull_survey', urlencodedParser, function(req, res){
       if (err) throw err;
       console.log('Data received from Db:\n');
       console.log(rows);
-      res.json(rows)
+      res.json(rows);
   });
 });
 
@@ -253,7 +261,7 @@ app.get('/pull_posts', urlencodedParser, function(req, res){
       if (err) throw err;
       console.log('Data received from Db:\n');
       console.log(rows);
-      res.json(rows)
+      res.json(rows);
   });
 });
 
@@ -272,7 +280,7 @@ app.get('/pull_comments', urlencodedParser, function(req, res){
       if (err) throw err;
       console.log('Data received from Db:\n');
       console.log(rows);
-      res.json(rows)
+      res.json(rows);
   });
 });
 
@@ -284,7 +292,7 @@ app.get('/pull_pending_angels', urlencodedParser, function(req, res){
       if (err) throw err;
       console.log('Data received from Db:\n');
       console.log(rows);
-      res.json(rows)
+      res.json(rows);
   });
 });
 
@@ -296,7 +304,7 @@ app.get('/pull_accepted_angels', urlencodedParser, function(req, res){
       if (err) throw err;
       console.log('Data received from Db:\n');
       console.log(rows);
-      res.json(rows)
+      res.json(rows);
   });
 });
 
@@ -306,8 +314,70 @@ app.get('/pull_settings',urlencodedParser,  function(req, res) {
       if (err) throw err;
       console.log('Data received from Db:\n');
       console.log(rows);
-      res.json(rows)
+      res.json(rows);
   });
+});
+
+
+app.get('/pull_survey_question', urlencodedParser, function(req, res){
+  console.log("Pulling all survey questions");
+  con.query("SELECT question, qID FROM SurveyQuestions", function(err,rows) {
+      if (err) throw err;
+      console.log('Data received from Db:\n');
+      console.log(rows);
+      res.json(rows);
+  });
+});
+
+app.get('/pull_survey_question_type/:id', urlencodedParser, function(req, res){
+  console.log("Pulling all survey questions");
+  var qID = req.params.id;
+  con.query("SELECT questionType FROM SurveyQuestions WHERE qID = "+qID+" ", function(err,rows) {
+      if (err) throw err;
+      console.log('Data received from Db:\n');
+      console.log(rows);
+      res.json(rows);
+  });
+});
+
+app.get('/pull_survey_data_mc/:id', urlencodedParser, function(req, res){
+  console.log("Pulling survey results");
+  var qID = req.params.id;
+  con.query("SELECT  answerChoice, IF(c is not NULL, c, 0) as count " +
+            "FROM " +
+            "(SELECT response, count(response) AS c " +
+            "FROM SurveyResponses " +
+            "WHERE qID = "+qID+" " +
+            "GROUP BY response) AS A " +
+            "RIGHT JOIN " +
+            "(SELECT answerChoice " +
+            "FROM SurveyAnswers " +
+            "WHERE qID = "+qID+") AS B " +
+            "ON A.response = B.answerChoice " +
+            "GROUP BY B.answerChoice", function(err,rows) {
+      if (err) throw err;
+      console.log('Data received from Db:\n');
+      console.log(rows);
+      res.json(rows);
+  });
+});
+
+app.get('/pull_survey_data_fr/:id', urlencodedParser, function(req, res){
+  var qID = req.params.id;
+  con.query("SELECT response " +
+            "FROM SurveyResponses " +
+            "WHERE qID = "+qID+" AND response != ''", function(err,rows) {
+      if (err) throw err;
+      console.log('Data received from Db:\n');
+      console.log(rows);
+      res.json(rows);
+  });
+});
+
+app.get('/pull_alerts', urlencodedParser, function(req, res){
+  console.log(alerts);
+  res.json(alerts);
+  alerts = [];
 });
 
 // UPDATE ======================================================================================================================
@@ -327,9 +397,11 @@ app.post('/update_profile',urlencodedParser,  function(req, res) {
   con.query(query, function(err) {
     if (err) {
       console.log("Update profile attempt failed");
+      alerts.push({alert: "Updating profile failed, please try again.", type: "danger"});
       res.redirect(req.get('referer'));
     } else {
       console.log("Update profile success");
+      alerts.push({alert: "Updated profile successfully!", type: "success"});
       res.sendFile(path.join(__dirname,'./html/profile.html'));
     }
   });
@@ -343,9 +415,11 @@ app.post('/update_password',urlencodedParser,  function(req, res) {
 
   var valid = true;
   if (newPass.length < 8 || newPass.length > 20) {
+    alerts.push({alert: "Password must have a length between 8 and 20 characters.", type: "danger"});
     valid = false;
   }
   if (newPass != newPass2) {
+    alerts.push({alert: "Passwords do not match.", type: "danger"});
     valid = false;
   }
 
@@ -364,15 +438,18 @@ app.post('/update_password',urlencodedParser,  function(req, res) {
             con.query(query, function(err) {
               if (err) {
                 console.log("Update password attempt failed");
+                alerts.push({alert: "Updating password failed, please try again.", type: "danger"});
                 res.redirect(req.get('referer'));
               } else {
                 console.log("Update password success");
+                alerts.push({alert: "Updated password successfully!", type: "success"});
                 res.sendFile(path.join(__dirname,'./html/profile.html'));
               }
             });
           });
         } else {
-          console.log("Invalid password")
+          console.log("Invalid password");
+          alerts.push({alert: "Invalid password, please try again.", type: "danger"});
           res.redirect(req.get('referer'));
         }
       });
@@ -394,9 +471,11 @@ app.post('/updateSettings', urlencodedParser, function(req, res) {
   con.query(query, function(err) {
     if (err) {
       console.log("Update settings attempt failed");
+      alerts.push({alert: "Updating settings failed.", type: "danger"});
       res.redirect(req.get('referer'));
     } else {
       console.log("Updated settings successfully");
+      alerts.push({alert: "Updated settings successfully!", type: "success"});
       res.redirect(req.get('referer'));
     }
   });
@@ -420,72 +499,19 @@ app.post('/update_angels/:query', urlencodedParser, function(req, res){
     console.log("Rejecting User, deleting account");
   }
 
-    con.query(query, function(err) {
+  con.query(query, function(err) {
     if (err) {
       console.log(err)
       console.log("Error Accepting/Rejecting Gardener");
+      alerts.push({alert: "Failed to " + n + " user.", type: "danger"});
       res.redirect(req.get('referer'));
     } else {
       console.log("Successfully Accepted/Rejected Gardener");
+      alerts.push({alert: "Successfully " + n + "ed user!", type: "success"});
       res.redirect(req.get('referer'));
     }
   });
 
-});
-
-app.get('/pull_survey_question', urlencodedParser, function(req, res){
-  console.log("Pulling all survey questions");
-  con.query("SELECT question, qID FROM SurveyQuestions", function(err,rows) {
-      if (err) throw err;
-      console.log('Data received from Db:\n');
-      console.log(rows);
-      res.json(rows)
-  });
-});
-
-app.get('/pull_survey_question_type/:id', urlencodedParser, function(req, res){
-  console.log("Pulling all survey questions");
-  var qID = req.params.id;
-  con.query("SELECT questionType FROM SurveyQuestions WHERE qID = "+qID+" ", function(err,rows) {
-      if (err) throw err;
-      console.log('Data received from Db:\n');
-      console.log(rows);
-      res.json(rows)
-  });
-});
-
-app.get('/pull_survey_data_mc/:id', urlencodedParser, function(req, res){
-  console.log("Pulling survey results");
-  var qID = req.params.id;
-  con.query("SELECT  answerChoice, IF(c is not NULL, c, 0) as count " +
-            "FROM " +
-            "(SELECT response, count(response) AS c " +
-            "FROM SurveyResponses " +
-            "WHERE qID = "+qID+" " +
-            "GROUP BY response) AS A " +
-            "RIGHT JOIN " +
-            "(SELECT answerChoice " +
-            "FROM SurveyAnswers " +
-            "WHERE qID = "+qID+") AS B " +
-            "ON A.response = B.answerChoice " +
-            "GROUP BY B.answerChoice", function(err,rows) {
-      if (err) throw err;
-      console.log('Data received from Db:\n');
-      console.log(rows);
-      res.json(rows)
-  });
-});
-
-app.get('/pull_survey_data_fr/:id', urlencodedParser, function(req, res){
-  var qID = req.params.id;
-  con.query("SELECT response " +
-            "FROM SurveyResponses " +
-            "WHERE qID = "+qID+" AND response != ''", function(err,rows) {
-      if (err) throw err;
-      console.log('Data received from Db:\n');
-      console.log(rows);
-      res.json(rows)
-  });
 });
 
 // SUBMIT ====================================================================================================================================
@@ -502,9 +528,11 @@ app.post('/submit_survey/:query',urlencodedParser,  function(req, res) {
   con.query(query, function(err) {
     if (err) {
       console.log("Submit survey attempt failed.");
+      alerts.push({alert: "Submitting survey failed, please try again.", type: "danger"});
       res.redirect(req.get('referer'));
     } else {
       console.log("Submit survey success.");
+      alerts.push({alert: "Submitted survey successfully!", type: "success"});
       res.redirect(req.get('referer'));
     }
   });
@@ -521,9 +549,11 @@ app.post('/submit_post', urlencodedParser, function(req, res) {
     con.query(query, function(err) {
       if(err) {
         console.log("Submit post attempt failed.");
-        throw err;
+        alerts.push({alert: "Posting failed, please try again.", type: "danger"});
+        console.log(err);
       } else {
         console.log("Submit post success.");
+        alerts.push({alert: "Posted successfully!", type: "success"});
       }
     });
   }
@@ -542,13 +572,15 @@ app.post('/submit_check_in', urlencodedParser, function(req, res) {
     con.query(query, function(err) {
       if(err) {
         console.log("Submit check in attempt failed.");
-        throw err;
+        alerts.push({alert: "Check in failed, please try again.", type: "danger"});
+        console.log(err);
       } else {
         console.log("Submit check in success.");
+        alerts.push({alert: "Created check in successfully!", type: "success"});
       }
     });
   }
-  res.sendFile(path.join(__dirname, './html/home.html'));
+  res.redirect(req.get('referer'));
 });
 
 app.post('/submit_comment', urlencodedParser, function(req, res) {
@@ -577,6 +609,7 @@ app.post('/submit_survey_question', urlencodedParser, function(req, res) {
   var question = req.body.question;
   var targetUsers = req.body.targetUsers;
   var questionType = req.body.questionType;
+  var success = true;
 
   var query = "INSERT INTO SurveyQuestions (question, questionType) VALUES ('" + question + "', '" + questionType + "');";
   console.log(query);
@@ -584,43 +617,69 @@ app.post('/submit_survey_question', urlencodedParser, function(req, res) {
   con.query(query, function(err) { // insert into SurveyQuestions
     if (err) {
       console.log("Submit survey question failed.");
-      throw err;
+      success = false;
+      alerts.push({alert: "Submitting survey question failed, please try again", type: "danger"});
+      console.log(err);
     } else {
       var query2 = "SELECT qID FROM SurveyQuestions ORDER BY qID DESC LIMIT 1;";
       con.query(query2, function(err,rows) { // get qID to insert into SurveyAnswers and SurveyResponses
-          if (err) throw err;
-
-          console.log('Data received from Db:\n');
-          console.log(rows);
-          var qID = rows[0].qID;
-
-          if (questionType == "mc") { // insert all the answer choices for multiple choice
-            var choices = req.body.choices;
-            choices.forEach((choice) => {
-              var query3 = "INSERT INTO SurveyAnswers (qID, answerChoice) VALUES ('" + qID + "', '" + choice + "');";
-              console.log(query3);
-              con.query(query3);
-            });
+          if (err) {
+            success = false;
+            console.log(err);
           }
-
-          var query4 = "SELECT email FROM User";
-          if (targetUsers != 0) {
-            query4 += " WHERE role=" + targetUsers + ";"; 
-          }
-          con.query(query4, function(err,rows) { // get all target users' email
-            if (err) throw err;
-
+          else {
             console.log('Data received from Db:\n');
             console.log(rows);
+            var qID = rows[0].qID;
 
-            rows.forEach((d) => { // insert emails into SurveyResponses
-              var query5 = "INSERT INTO SurveyResponses (email, qID, response) VALUES ('" + d.email + "', '" + qID + "', '');";
-              console.log(query5);
-              con.query(query5);
-            });
-          });
+            if (questionType == "mc") { // insert all the answer choices for multiple choice
+              var choices = req.body.choices;
+              choices.forEach((choice) => {
+                var query3 = "INSERT INTO SurveyAnswers (qID, answerChoice) VALUES ('" + qID + "', '" + choice + "');";
+                console.log(query3);
+                con.query(query3, function(err) {
+                  if (err) {
+                    success = false;
+                    console.log(err);
+                  }
+                });
+              });
+            }
+
+            if (success) {
+              var query4 = "SELECT email FROM User";
+              if (targetUsers != 0) {
+                query4 += " WHERE role=" + targetUsers + ";"; 
+              }
+              con.query(query4, function(err,rows) { // get all target users' email
+                if (err) {
+                  success = false;
+                  console.log(err);
+                }
+
+                console.log('Data received from Db:\n');
+                console.log(rows);
+
+                rows.forEach((d) => { // insert emails into SurveyResponses
+                  if (success) {
+                    var query5 = "INSERT INTO SurveyResponses (email, qID, response) VALUES ('" + d.email + "', '" + qID + "', '');";
+                    console.log(query5);
+                    con.query(query5, function(err){
+                      success = false;
+                      console.log(err);
+                    });
+                  }
+                });
+              });
+            }
+          }
       });
     }
   });
+  if (success) {
+    alerts.push({alert: "Created survey successfully!", type: "success"});
+  } else {
+    alerts.push({alert: "Creating survey failed, please try again.", type: "danger"});
+  }
   res.sendFile(path.join(__dirname, './html/create-survey.html'));
 });

@@ -37,6 +37,7 @@
             <div class="heading">
                 <h2 class="text-center">Surveys</h2>
             </div>
+            <div id="alerts"></div>
             <div id="survey"></div>
             
             
@@ -62,7 +63,7 @@
                 });
 
                 qIDs.forEach((qID) => {
-                    content += "<form method=\"post\" action=\"/submit_survey/" + qID + "\"><div>";
+                    content += "<form style=\"margin: 20px auto;\" method=\"post\" action=\"/submit_survey/" + qID + "\"><div>";
 
                     i = 0;
                     while(true){
@@ -93,10 +94,17 @@
                 });
 
                 if (content == "") {
-                    content = "<br><h5>No surveys currently available.</h5>";
+                    content = "<br><h5 class=\"no-result\">No surveys currently available.</h5>";
                 }
                 
                 document.getElementById('survey').innerHTML = content;
+            });
+
+            $.get("/pull_alerts", function(data, status){
+                var header = $("#alerts");
+                data.forEach((d) => {
+                    header.after("<div class=\"alert alert-" + d.type + "\" role=\"alert\" style=\"margin: 10px auto; width: 50%;\"><strong>" + d.alert + "</strong><span class=\"close\" onclick=\"this.parentElement.style.display='none';\">&times;</span></div>");
+                });
             });
           });
     </script>

@@ -4,16 +4,19 @@
     background: transparent;
     border: none;
 }
+
 .nav-link form{
 	padding: 0;
 	margin: 0;
     background: transparent;
     border: none;
 }
+
 ul{
 	padding: 0;
 	margin: 0;
 }
+
 .comments button{
 	margin-right: 75px;
 	margin-left: 75px;
@@ -32,4 +35,23 @@ ul{
 
 .no-result {
 	color: #7b7b7b;
+}
+
+.close span{
+  margin-left: 15px;
+  color: white;
+  font-weight: bold;
+  float: right;
+  font-size: 22px;
+  line-height: 20px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.close:hover {
+  color: black;
+}
+
+.alert {
+    text-align: left;
 }

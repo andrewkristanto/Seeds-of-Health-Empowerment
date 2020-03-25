@@ -39,7 +39,8 @@
                     <h2 class="text-center">Create a Survey</h2>
                 </div>
             <form action="/submit_survey_question" method="post">
-                <div class="form-group"><input class="form-control" type="text" name="question" placeholder="Enter a survey question"></div>
+                <div id="alerts"></div>
+                <div class="form-group"><input class="form-control" type="text" name="question" placeholder="Enter a survey question" required></div>
                 <div class="container">
                     <div class="form-group"><label for="targetUsers">Target Users</label><select class="form-control" name="targetUsers">
                         <option value="0">All</option>
@@ -98,6 +99,16 @@
     <script src="assets/bootstrap/js/bootstrap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pikaday/1.6.1/pikaday.min.js"></script>
     <script src="assets/js/theme.js"></script>
+    <script>
+        $(document).ready(function(){
+            $.get("/pull_alerts", function(data, status){
+                var header = $("#alerts");
+                data.forEach((d) => {
+                    header.after("<div class=\"alert alert-" + d.type + "\" role=\"alert\"><strong>" + d.alert + "</strong><span class=\"close\" onclick=\"this.parentElement.style.display='none';\">&times;</span></div>");
+                });
+            });
+        });
+    </script>
 </body>
 
 </html>

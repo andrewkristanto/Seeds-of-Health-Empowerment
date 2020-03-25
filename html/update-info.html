@@ -39,6 +39,7 @@
                     <h2>Update My Information</h2>
                 </div>
                 <form method="post" action="/update_profile">
+                    <div id="alerts"></div>
                     <div class="form-group"><label for="email">Email</label><input class="form-control item" type="email" id="email" name="email" disabled required></div>
                     <div class="form-group"><label for="subject">First Name</label><input class="form-control" type="text" id="firstname" name="fname" required></div>
                     <div class="form-group"><label for="subject">Last Name</label><input class="form-control" type="text" id="lastname" name="lname" required></div>
@@ -135,6 +136,13 @@
                     document.getElementById('zip').value = d.zipcode;
                     document.getElementById('phone').value = d.phoneNumber;
                     document.getElementById('state').value = d.state;
+                });
+            });
+
+            $.get("/pull_alerts", function(data, status){
+                var header = $("#alerts");
+                data.forEach((d) => {
+                    header.after("<div class=\"alert alert-" + d.type + "\" role=\"alert\"><strong>" + d.alert + "</strong><span class=\"close\" onclick=\"this.parentElement.style.display='none';\">&times;</span></div>");
                 });
             });
         });

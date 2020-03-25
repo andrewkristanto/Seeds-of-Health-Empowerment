@@ -37,9 +37,8 @@
             <div class="heading">
                 <h2 class="text-center">Create a Check In</h2>
             </div>
-            <div id="checkin"></div>
-            
-            
+            <div id="alerts"></div>
+            <div id="checkin"></div>   
         </section>
     </main>
     <script src="assets/js/jquery.min.js"></script>
@@ -54,16 +53,23 @@
         $(document).ready(function(){
             $.get("/pull_gardeners", function(data, status){
                 var content = "";
-                content += "<form method=\"post\" action=\"/submit_check_in/\"><div>";
-                content += "<div class=\"container\" style=\"padding: 25px;\"><h4>Create your check in</h4></div><div class=\"form-group\"><select id=\"gardenerText\" name=\"gardenerText\"><option value=\"\" disabled> -- select the gardener -- </option>";
+                content += "<form method=\"post\" action=\"/submit_check_in/\">";
+                content += "<h4 style=\"margin: 10px;\">Select a Gardener</h4><div class=\"form-group\"><select id=\"gardenerText\" name=\"gardenerText\"><option value=\"\" disabled> -- select the gardener -- </option>";
                     data.forEach((d) => {
-                        content += "<option value=\"" + d.email + "\">" + d.firstName + " " + d.lastName + "-" + d.email + "</option>"; 
+                        content += "<option value=\"" + d.email + "\">" + d.firstName + " " + d.lastName + " - " + d.email + "</option>"; 
                     });
-                    content += "</select></div><textarea id=\"checkText\" name=\"checkText\" placeholder=\"Write a comment\"></textarea><div class=\"container\" style=\"padding: 10px;\">";
+                    content += "</select></div><textarea required id=\"checkText\" name=\"checkText\" style=\"margin: 30px; width: 75%; height: 100px;\"placeholder=\"Write a comment\"></textarea><div class=\"container\" style=\"padding: 10px;\">";
                     content += "<button class=\"btn btn-primary\" type=\"submit\" style=\"width: 278px;height: 30px;margin-top: 10;padding: 0;font-size: 13;\">Submit</button></div>";
-                    content += "</div></form>\n";
+                    content += "</form>\n";
                 
                 document.getElementById('checkin').innerHTML = content;
+            });
+
+            $.get("/pull_alerts", function(data, status){
+                var header = $("#alerts");
+                data.forEach((d) => {
+                    header.after("<div class=\"alert alert-" + d.type + "\" role=\"alert\" style=\"margin: 10px auto; width: 50%;\"><strong>" + d.alert + "</strong><span class=\"close\" onclick=\"this.parentElement.style.display='none';\">&times;</span></div>");
+                });
             });
           });
     </script>

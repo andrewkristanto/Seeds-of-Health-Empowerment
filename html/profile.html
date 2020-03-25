@@ -58,6 +58,20 @@
                     <div class="form-group"><button class="btn btn-primary btn-block btn-lg" type="submit">Change Password</button></div>
                 </form>
             </div>
+            <br>
+            <div class="container">
+                <h4>Check-Ins</h4>
+                <table class="table" id="checkinTable">
+                    <thead>
+                        <tr>
+                            <th>Garden Angel</th>
+                            <th>Gardener</th>
+                            <th>Date</th>
+                            <th>Notes</th>
+                        </tr>
+                    </thead>  
+                </table>
+            </div>
         </section>
     </main>
     <script src="assets/js/jquery.min.js"></script>
@@ -86,6 +100,17 @@
                 });
             });
         });
+    </script>
+
+    <script>
+    	$(document).ready(function(){
+    		$.get("/pull_checkins", function(data, status){
+    			var table = $("#checkinTable thead");
+    			data.forEach((d) =>{
+    				table.after("<tr><td>" + d.angel + "</td><td>" + d.gardener + "</td><td>" + d.checkDate.split("T")[0] + "</td><td>" + d.checkText + "</td></tr>");
+    			});
+    		});	
+    	});
     </script>
 </body>
 

@@ -380,6 +380,25 @@ app.get('/pull_alerts', urlencodedParser, function(req, res){
   alerts = [];
 });
 
+app.get('/pull_checkins', urlencodedParser, function(req, res){
+  console.log("Gardener check-ins");
+  if(cur_role == 0){
+    con.query("SELECT * FROM CheckIn WHERE gardener = '" + cur_user + "';", function(err, rows){
+      if (err) throw err;
+      console.log('Data received from Db:\n');
+      console.log(rows);
+      res.json(rows)
+    });
+  } else if(cur_role == 2){
+    con.query("SELECT * FROM CheckIn WHERE angel = '" + cur_user + "';", function(err, rows){
+      if (err) throw err;
+      console.log('Data received from Db:\n');
+      console.log(rows);
+      res.json(rows)
+    });
+  } 
+});
+
 // UPDATE ======================================================================================================================
 app.post('/update_profile',urlencodedParser,  function(req, res) {
   var fname = req.body.fname;

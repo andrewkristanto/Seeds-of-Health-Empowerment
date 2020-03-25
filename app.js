@@ -76,6 +76,10 @@ app.get("/survey", urlencodedParser,  function(req, res) {
   res.sendFile(path.join(__dirname,'./html/survey.html'));
 });
 
+app.get("/checkin", urlencodedParser,  function(req, res) {
+  res.sendFile(path.join(__dirname,'./html/check-in.html'));
+});
+
 app.get("/settings", urlencodedParser,  function(req, res) {
   res.sendFile(path.join(__dirname,'./html/settings.html'));
 });
@@ -511,6 +515,27 @@ app.post('/submit_post', urlencodedParser, function(req, res) {
     });
   }
   res.sendFile(path.join(__dirname,'./html/home.html'));
+});
+
+app.post('/submit_check_in', urlencodedParser, function(req, res) {
+  console.log("Received check in");
+  var checkText = req.body.checkText;
+  var gardenerText = req.body.gardenerText;
+
+  if (checkText.length > 0) {
+    var query = "INSERT INTO CheckIn (angel, gardener, commentText) VALUES ('" + cur_user + "', '" + gardenerText + "', '" + commentText + "');";
+    console.log(query);
+
+    con.query(query, function(err) {
+      if(err) {
+        console.log("Submit check in attempt failed.");
+        throw err;
+      } else {
+        console.log("Submit check in success.");
+      }
+    });
+  }
+  res.sendFile(path.join(__dirname, './html/posts.html'));
 });
 
 app.post('/submit_comment', urlencodedParser, function(req, res) {

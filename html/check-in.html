@@ -45,22 +45,18 @@
     <script src="assets/bootstrap/js/bootstrap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pikaday/1.6.1/pikaday.min.js"></script>
     <script src="assets/js/theme.js"></script>
-    <script src="assets/js/jquery.min.js"></script>
-    <script src="assets/bootstrap/js/bootstrap.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pikaday/1.6.1/pikaday.min.js"></script>
-    <script src="assets/js/theme.js"></script>
     <script>
         $(document).ready(function(){
             $.get("/pull_gardeners", function(data, status){
                 var content = "";
                 content += "<form method=\"post\" action=\"/submit_check_in/\">";
                 content += "<h4 style=\"margin: 10px;\">Select a Gardener</h4><div class=\"form-group\"><select id=\"gardenerText\" name=\"gardenerText\"><option value=\"\" disabled> -- select the gardener -- </option>";
-                    data.forEach((d) => {
+                data.forEach((d) => {
                         content += "<option value=\"" + d.email + "\">" + d.firstName + " " + d.lastName + " - " + d.email + "</option>"; 
-                    });
-                    content += "</select></div><textarea required id=\"checkText\" name=\"checkText\" style=\"margin: 30px; width: 75%; height: 100px;\"placeholder=\"Write a comment\"></textarea><div class=\"container\" style=\"padding: 10px;\">";
-                    content += "<button class=\"btn btn-primary\" type=\"submit\" style=\"width: 278px;height: 30px;margin-top: 10;padding: 0;font-size: 13;\">Submit</button></div>";
-                    content += "</form>\n";
+                });
+                content += "</select></div><textarea required id=\"checkText\" name=\"checkText\" style=\"margin: 30px; width: 75%; height: 100px;\"placeholder=\"Write a comment\"></textarea><div class=\"container\" style=\"padding: 10px;\">";
+                content += "<button class=\"btn btn-primary\" type=\"submit\" style=\"width: 278px;height: 30px;margin-top: 10;padding: 0;font-size: 13;\">Submit</button></div>";
+                content += "</form>\n";
                 
                 document.getElementById('checkin').innerHTML = content;
             });

@@ -231,6 +231,19 @@ app.get('/pull_survey', urlencodedParser, function(req, res){
   });
 });
 
+
+app.get('/pull_gardeners', urlencodedParser, function(req, res){
+  console.log("Arrived on check in page.");
+  con.query("SELECT * " +
+            "FROM User " +
+            "WHERE role = 1", function(err,rows) {
+      if (err) throw err;
+      console.log('Data received from Db:\n');
+      console.log(rows);
+      res.json(rows)
+  });
+});
+
 app.get('/pull_posts', urlencodedParser, function(req, res){
   console.log("Arrived on home page.");
   con.query("SELECT User.firstName, User.lastName, Posts.postId, Posts.postDate, Posts.postText " +
@@ -523,7 +536,7 @@ app.post('/submit_check_in', urlencodedParser, function(req, res) {
   var gardenerText = req.body.gardenerText;
 
   if (checkText.length > 0) {
-    var query = "INSERT INTO CheckIn (angel, gardener, commentText) VALUES ('" + cur_user + "', '" + gardenerText + "', '" + commentText + "');";
+    var query = "INSERT INTO CheckIn (angel, gardener, checkText) VALUES ('" + cur_user + "', '" + gardenerText + "', '" + checkText + "');";
     console.log(query);
 
     con.query(query, function(err) {
@@ -535,7 +548,7 @@ app.post('/submit_check_in', urlencodedParser, function(req, res) {
       }
     });
   }
-  res.sendFile(path.join(__dirname, './html/posts.html'));
+  res.sendFile(path.join(__dirname, './html/home.html'));
 });
 
 app.post('/submit_comment', urlencodedParser, function(req, res) {

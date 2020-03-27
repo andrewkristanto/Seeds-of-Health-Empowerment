@@ -25,6 +25,7 @@ var cur_user = null;
 var cur_role = null;
 var cur_post = null;
 var alerts = [];
+var check_filter = null
 
 var api = express.Router();
 
@@ -245,6 +246,34 @@ app.get('/pull_gardeners', urlencodedParser, function(req, res){
   con.query("SELECT * " +
             "FROM User " +
             "WHERE role = 1", function(err,rows) {
+      if (err) throw err;
+      console.log('Data received from Db:\n');
+      console.log(rows);
+      res.json(rows)
+  });
+});
+
+app.get('/pull_gardeners_angels', urlencodedParser, function(req, res){
+  console.log("Arrived on filter check in page.");
+  con.query("SELECT * " +
+            "FROM User " +
+            "WHERE role = 1 or 2", function(err,rows) {
+      if (err) throw err;
+      console.log('Data received from Db:\n');
+      console.log(rows);
+      res.json(rows)
+  });
+});
+
+app.get('/pull_check_ins', urlencodedParser, function(req, res){
+  console.log("Arrived on view check in page.");
+  check_filter = req.body.checkFilter;
+  var query = "SELECT * " +
+            "FROM CheckIn ";
+      if (check_filter != "All") {
+        query += "Where Angel = " + check_filter + " Gardener = " + check_filter;
+      }
+  con.query(query, function(err,rows) {
       if (err) throw err;
       console.log('Data received from Db:\n');
       console.log(rows);
@@ -532,6 +561,62 @@ app.post('/update_angels/:query', urlencodedParser, function(req, res){
   });
 
 });
+
+app.get('/pull_survey_question', urlencodedParser, function(req, res){
+  console.log("Pulling all survey questions");
+  con.query("SELECT question, qID FROM SurveyQuestions", function(err,rows) {
+      if (err) throw err;
+      console.log('Data received from Db:\n');
+      console.log(rows);
+      res.json(rows)
+  });
+});
+
+app.get('/pull_survey_question_type/:id', urlencodedParser, function(req, res){
+  console.log("Pulling all survey questions");
+  var qID = req.params.id;
+  con.query("SELECT questionType FROM SurveyQuestions WHERE qID = "+qID+" ", function(err,rows) {
+      if (err) throw err;
+      console.log('Data received from Db:\n');
+      console.log(rows);
+      res.json(rows)
+  });
+});
+
+app.get('/pull_survey_data_mc/:id', urlencodedParser, function(req, res){
+  console.log("Pulling survey results");
+  var qID = req.params.id;
+  con.query("SELECT  answerChoice, IF(c is not NULL, c, 0) as count " +
+            "FROM " +
+            "(SELECT response, count(response) AS c " +
+            "FROM SurveyResponses " +
+            "WHERE qID = "+qID+" " +
+            "GROUP BY response) AS A " +
+            "RIGHT JOIN " +
+            "(SELECT answerChoice " +
+            "FROM SurveyAnswers " +
+            "WHERE qID = "+qID+") AS B " +
+            "ON A.response = B.answerChoice " +
+            "GROUP BY B.answerChoice", function(err,rows) {
+      if (err) throw err;
+      console.log('Data received from Db:\n');
+      console.log(rows);
+      res.json(rows)
+  });
+});
+
+app.get('/pull_survey_data_fr/:id', urlencodedParser, function(req, res){
+  var qID = req.params.id;
+  con.query("SELECT response " +
+            "FROM SurveyResponses " +
+            "WHERE qID = "+qID+" AND response != ''", function(err,rows) {
+      if (err) throw err;
+      console.log('Data received from Db:\n');
+      console.log(rows);
+      res.json(rows)
+  });
+});
+
 
 // SUBMIT ====================================================================================================================================
 

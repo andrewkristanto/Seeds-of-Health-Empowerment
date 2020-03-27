@@ -573,6 +573,56 @@ app.post('/submit_post', urlencodedParser, function(req, res) {
       } else {
         console.log("Submit post success.");
         alerts.push({alert: "Posted successfully!", type: "success"});
+        //Send notification out to all users and put notification in Notifications Tab table
+        var query4 = "SELECT email FROM User";
+        con.query(query4, function(err,rows) { // get all target users' email
+          if (err) {
+            console.log(err);
+          }
+
+          console.log('Data received from Db:\n');
+          console.log(rows);
+
+          rows.forEach((d) => { // use email to send notification to each user
+            //send a notification out to all specified users and put the notification in the Notifications Tab table
+            if (cur_user != d.email) {
+              var message = ["Someone has created a new post, check it out!", "A new post has been uploaded to the Community Feed.", "Take a look at the Community Feed, someone has uploaded a new post!"];
+              var content = "New Post: " + postText;
+              var rand = Math.round(Math.random() * 3) - 1;
+              var query6 = "INSERT INTO Notifications (email, content) VALUES ('" + d.email + "', '" + content + "');";
+              con.query(query6, function(err){
+                if (err) {
+                  console.log(err);
+                }
+              });
+
+              var query7 = "SELECT * FROM NotificationSettings WHERE email=" + d.email;
+              con.query(query7, function(err, rows) {
+                if (err) {
+                  success = false;
+                  console.log(err);
+                } else {
+                  console.log('Data received from Db:\n');
+                  console.log(rows);
+
+                  var toggle = rows.toggle;
+                  var frequency = rows.frequency;
+                  var method = rows.method;
+
+                  if (toggle == 'On') {
+                    if (method == 'Email') {
+                      //sends an email out to specified users
+                    } else if (method == 'Phone') {
+                      //sends a text out to specified users
+                    } else {
+                      //sends an email and a text out to specified users
+                    }
+                  }
+                }
+              });
+            }
+          });
+        });
       }
     });
   }
@@ -613,9 +663,62 @@ app.post('/submit_comment', urlencodedParser, function(req, res) {
     con.query(query, function(err) {
       if(err) {
         console.log("Submit comment attempt failed.");
+        alerts.push({alert: "Commenting failed, please try again.", type: "danger"});
         throw err;
       } else {
         console.log("Submit comment success.");
+        alerts.push({alert: "Commented successfully!", type: "success"});
+
+        //send a notification out to owner of the post and put the notification in the Notifications Tab table
+        var query2 = "SELECT email FROM Posts WHERE postId=" + cur_post;
+        console.log(query2);
+
+        con.query(query2, function(err, rows) {
+          if (err) {
+            console.log(err);
+          } else {
+            console.log('Data received from Db:\n');
+            console.log(rows);
+            var email = rows[0].email;
+            //send a notification to owner of post
+            if (cur_user != email) {
+              var message = ["Someone has responded to your post, check it out!", "A new comment has appeared on your post.", "Take a look at your post, someone has commented!"];
+              var content = "New Comment: " + commentText;
+              var rand = Math.round(Math.random() * 3) - 1;
+              var query3 = "INSERT INTO Notifications (email, content) VALUES ('" + email + "', '" + content + "');";
+              con.query(query3, function(err){
+                if (err) {
+                  console.log(err);
+                }
+              });
+
+              var query7 = "SELECT * FROM NotificationSettings WHERE email=" + d.email;
+              con.query(query7, function(err, rows) {
+                if (err) {
+                  success = false;
+                  console.log(err);
+                } else {
+                  console.log('Data received from Db:\n');
+                  console.log(rows);
+
+                  var toggle = rows.toggle;
+                  var frequency = rows.frequency;
+                  var method = rows.method;
+
+                  if (toggle == 'On') {
+                    if (method == 'Email') {
+                      //sends an email out to specified users
+                    } else if (method == 'Phone') {
+                      //sends a text out to specified users
+                    } else {
+                      //sends an email and a text out to specified users
+                    }
+                  }
+                }
+              });
+            }
+          }
+        });
       }
     });
   }
@@ -686,6 +789,42 @@ app.post('/submit_survey_question', urlencodedParser, function(req, res) {
                     con.query(query5, function(err){
                       success = false;
                       console.log(err);
+                    });
+                    //send a notification out to all specified users and put the notification in the Notifications Tab table
+                    var message = ["A new survey is out, please complete it!", "We have just release a new survey, check it out!", "Please complete the new survey in the survey tab!"];
+                    var content = "New Survey: " + question;
+                    var rand = Math.round(Math.random() * 3) - 1;
+                    var query6 = "INSERT INTO Notifications (email, content) VALUES ('" + d.email + "', '" + content + "');";
+                    con.query(query6, function(err){
+                      if (err) {
+                        success = false;
+                        console.log(err);
+                      }
+                    });
+
+                    var query7 = "SELECT * FROM NotificationSettings WHERE email=" + d.email;
+                    con.query(query7, function(err, rows) {
+                      if (err) {
+                        success = false;
+                        console.log(err);
+                      } else {
+                        console.log('Data received from Db:\n');
+                        console.log(rows);
+
+                        var toggle = rows.toggle;
+                        var frequency = rows.frequency;
+                        var method = rows.method;
+
+                        if (toggle == 'On') {
+                          if (method == 'Email') {
+                            //sends an email out to specified users
+                          } else if (method == 'Phone') {
+                            //sends a text out to specified users
+                          } else {
+                            //sends an email and a text out to specified users
+                          }
+                        }
+                      }
                     });
                   }
                 });

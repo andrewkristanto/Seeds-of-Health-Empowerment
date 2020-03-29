@@ -172,7 +172,7 @@ app.post('/register',urlencodedParser,  function(req, res) {
       var query = "INSERT INTO User (password, firstName, lastName, street, city, state, zipcode, email, phoneNumber, userStatus, lastLogin, role) "+
       "VALUES ('" + hash + "', '" + fname + "', '" + lname + "', '" + street + "', '" + city + "', '" + state + "', '" + zip + "', '" + email + "', '" + phone + "', 'pending', null, " + role + ");";
 
-      var query2 = "INSERT INTO NotificationSettings (email) VALUES ('" + email + "');";
+      var query2 = "INSERT INTO NotificationSettings (email, toggle, method) VALUES ('" + email + "', 'On', 'Email');";
 
       console.log(query);
       console.log(query2);
@@ -195,6 +195,41 @@ app.post('/register',urlencodedParser,  function(req, res) {
           console.log("Registration success");
           alerts.push({alert: "Registered successfully!", type: "success"});
           res.sendFile(path.join(__dirname,'./html/login.html'));
+
+          //send a notification to newly registered account
+          var content = "Welcome to Seeds of Health Empowerment!";
+          var query3 = "INSERT INTO Notifications (email, content) VALUES ('" + email + "', '" + content + "');";
+          con.query(query3, function(err){
+            if (err) {
+              console.log(err);
+            } else {
+              //send an email to newly registered user
+              var nodemailer = require('nodemailer');
+
+              var transporter = nodemailer.createTransport({
+                service: 'gmail',
+                auth: {
+                  user: 'historicwestsidegardenstest@gmail.com',
+                  pass: 'testing12345!'
+                }
+              });
+
+              var mailOptions = {
+                from: 'historicwestsidegardenstest@gmail.com',
+                to: email,
+                subject: 'Welcome to Seeds of Health Empowerment',
+                text: 'Thanks for registering an account with us!'
+              };
+
+              transporter.sendMail(mailOptions, function(error, info){
+                if (error) {
+                  console.log(error);
+                } else {
+                  console.log('Email sent: ' + info.response);
+                }
+              });
+            }
+          }); 
         }
       });
     });
@@ -651,7 +686,7 @@ app.post('/submit_post', urlencodedParser, function(req, res) {
     console.log(query);
 
     con.query(query, function(err) {
-      if(err) {
+      if (err) {
         console.log("Submit post attempt failed.");
         alerts.push({alert: "Posting failed, please try again.", type: "danger"});
         console.log(err);
@@ -663,50 +698,76 @@ app.post('/submit_post', urlencodedParser, function(req, res) {
         con.query(query4, function(err,rows) { // get all target users' email
           if (err) {
             console.log(err);
-          }
+          } else {
+            console.log('Data received from Db:\n');
+            console.log(rows);
 
-          console.log('Data received from Db:\n');
-          console.log(rows);
+            rows.forEach((d) => { // use email to send notification to each user
+              //send a notification out to all specified users and put the notification in the Notifications Tab table
+              if (cur_user != d.email) {
+                var content = "New Post: " + postText;
+                var query6 = "INSERT INTO Notifications (email, content) VALUES ('" + d.email + "', '" + content + "');";
+                con.query(query6, function(err){
+                  if (err) {
+                    console.log(err);
+                  } else {
+                    con.query("SELECT * FROM NotificationSettings WHERE email = '" + d.email + "';", function(err, rows) {
+                      if (err) {
+                        console.log(err);
+                      } else {
+                        console.log('Data received from Db:\n');
+                        console.log(rows);
+    
+                        rows.forEach((data) => {
+                          console.log(rows[0].toggle);
+                          console.log(rows[0].method);
 
-          rows.forEach((d) => { // use email to send notification to each user
-            //send a notification out to all specified users and put the notification in the Notifications Tab table
-            if (cur_user != d.email) {
-              var message = ["Someone has created a new post, check it out!", "A new post has been uploaded to the Community Feed.", "Take a look at the Community Feed, someone has uploaded a new post!"];
-              var content = "New Post: " + postText;
-              var rand = Math.round(Math.random() * 3) - 1;
-              var query6 = "INSERT INTO Notifications (email, content) VALUES ('" + d.email + "', '" + content + "');";
-              con.query(query6, function(err){
-                if (err) {
-                  console.log(err);
-                }
-              });
+                          var toggle = rows[0].toggle;
+                          var method = rows[0].method;
+                          let message = ["Someone has created a new post, check it out!", "A new post has been uploaded to the Community Feed.", "Take a look at the Community Feed, someone has uploaded a new post!"];
+                          var rand = Math.round(Math.random() * 3) - 1;
+                          if (toggle == 'On') {
+                            if (method == 'Email' || method == 'Email and Phone') {
+                              //sends an email out to specified users
+                              var nodemailer = require('nodemailer');
 
-              var query7 = "SELECT * FROM NotificationSettings WHERE email=" + d.email;
-              con.query(query7, function(err, rows) {
-                if (err) {
-                  success = false;
-                  console.log(err);
-                } else {
-                  console.log('Data received from Db:\n');
-                  console.log(rows);
+                              var transporter = nodemailer.createTransport({
+                                service: 'gmail',
+                                auth: {
+                                  user: 'historicwestsidegardenstest@gmail.com',
+                                  pass: 'testing12345!'
+                                }
+                              });
 
-                  var toggle = rows.toggle;
-                  var frequency = rows.frequency;
-                  var method = rows.method;
+                              var mailOptions = {
+                                from: 'historicwestsidegardenstest@gmail.com',
+                                to: d.email,
+                                subject: 'A New Post Has Been Created',
+                                text: message[rand]
+                              };
 
-                  if (toggle == 'On') {
-                    if (method == 'Email') {
-                      //sends an email out to specified users
-                    } else if (method == 'Phone') {
-                      //sends a text out to specified users
-                    } else {
-                      //sends an email and a text out to specified users
-                    }
+                              transporter.sendMail(mailOptions, function(error, info){
+                                if (error) {
+                                  console.log(error);
+                                } else {
+                                  console.log('Email sent: ' + info.response);
+                                }
+                              });
+
+                            } 
+                            if (method == 'Phone' || method == 'Email and Phone') {
+                              //sends a text out to specified users
+
+                            }
+                          }
+                        });
+                      }
+                    });
                   }
-                }
-              });
-            }
-          });
+                });
+              }
+            });
+          }
         });
       }
     });
@@ -767,38 +828,64 @@ app.post('/submit_comment', urlencodedParser, function(req, res) {
             var email = rows[0].email;
             //send a notification to owner of post
             if (cur_user != email) {
-              var message = ["Someone has responded to your post, check it out!", "A new comment has appeared on your post.", "Take a look at your post, someone has commented!"];
               var content = "New Comment: " + commentText;
-              var rand = Math.round(Math.random() * 3) - 1;
               var query3 = "INSERT INTO Notifications (email, content) VALUES ('" + email + "', '" + content + "');";
               con.query(query3, function(err){
                 if (err) {
                   console.log(err);
-                }
-              });
-
-              var query7 = "SELECT * FROM NotificationSettings WHERE email=" + d.email;
-              con.query(query7, function(err, rows) {
-                if (err) {
-                  success = false;
-                  console.log(err);
                 } else {
-                  console.log('Data received from Db:\n');
-                  console.log(rows);
-
-                  var toggle = rows.toggle;
-                  var frequency = rows.frequency;
-                  var method = rows.method;
-
-                  if (toggle == 'On') {
-                    if (method == 'Email') {
-                      //sends an email out to specified users
-                    } else if (method == 'Phone') {
-                      //sends a text out to specified users
+                  con.query("SELECT * FROM NotificationSettings WHERE email = '" + email + "';", function(err, rows) {
+                    if (err) {
+                      console.log(err);
                     } else {
-                      //sends an email and a text out to specified users
+                      console.log('Data received from Db:\n');
+                      console.log(rows);
+    
+                      rows.forEach((data) => {
+                        console.log(rows[0].toggle);
+                        console.log(rows[0].method);
+
+                        var toggle = rows[0].toggle;
+                        var method = rows[0].method;
+                        let message = ["Someone has responded to your post, check it out!", "A new comment has appeared on your post.", "Take a look at your post, someone has commented!"];
+                        var rand = Math.round(Math.random() * 3) - 1;
+                        if (toggle == 'On') {
+                          if (method == 'Email' || method == 'Email and Phone') {
+                            //sends an email out to specified users
+                            var nodemailer = require('nodemailer');
+
+                            var transporter = nodemailer.createTransport({
+                              service: 'gmail',
+                              auth: {
+                                user: 'historicwestsidegardenstest@gmail.com',
+                                pass: 'testing12345!'
+                              }
+                            });
+
+                            var mailOptions = {
+                              from: 'historicwestsidegardenstest@gmail.com',
+                              to: email,
+                              subject: 'New Comment Made on Post',
+                              text: message[rand]
+                            };
+
+                            transporter.sendMail(mailOptions, function(error, info){
+                              if (error) {
+                                console.log(error);
+                              } else {
+                                console.log('Email sent: ' + info.response);
+                              }
+                            });
+
+                          } 
+                          if (method == 'Phone' || method == 'Email and Phone') {
+                            //sends a text out to specified users
+                            
+                          }
+                        }
+                      });
                     }
-                  }
+                  });
                 }
               });
             }
@@ -876,39 +963,66 @@ app.post('/submit_survey_question', urlencodedParser, function(req, res) {
                       console.log(err);
                     });
                     //send a notification out to all specified users and put the notification in the Notifications Tab table
-                    var message = ["A new survey is out, please complete it!", "We have just release a new survey, check it out!", "Please complete the new survey in the survey tab!"];
                     var content = "New Survey: " + question;
-                    var rand = Math.round(Math.random() * 3) - 1;
                     var query6 = "INSERT INTO Notifications (email, content) VALUES ('" + d.email + "', '" + content + "');";
                     con.query(query6, function(err){
                       if (err) {
                         success = false;
                         console.log(err);
-                      }
-                    });
-
-                    var query7 = "SELECT * FROM NotificationSettings WHERE email=" + d.email;
-                    con.query(query7, function(err, rows) {
-                      if (err) {
-                        success = false;
-                        console.log(err);
                       } else {
-                        console.log('Data received from Db:\n');
-                        console.log(rows);
-
-                        var toggle = rows.toggle;
-                        var frequency = rows.frequency;
-                        var method = rows.method;
-
-                        if (toggle == 'On') {
-                          if (method == 'Email') {
-                            //sends an email out to specified users
-                          } else if (method == 'Phone') {
-                            //sends a text out to specified users
+                        con.query("SELECT * FROM NotificationSettings WHERE email = '" + d.email + "';", function(err, rows) {
+                          if (err) {
+                            success = false;
+                            console.log(err);
                           } else {
-                            //sends an email and a text out to specified users
+                            console.log('Data received from Db:\n');
+                            console.log(rows);
+
+                            rows.forEach((data) => {
+                              console.log(rows[0].toggle);
+                              console.log(rows[0].method);
+  
+                              var toggle = rows[0].toggle;
+                              var method = rows[0].method;
+                              let message = ["A new survey is out, please complete it!", "We have just release a new survey, check it out!", "Please complete the new survey in the survey tab!"];
+                              var rand = Math.round(Math.random() * 3) - 1;
+                              if (toggle == 'On') {
+                                if (method == 'Email' || method == 'Email and Phone') {
+                                  //sends an email out to specified users
+                                  var nodemailer = require('nodemailer');
+  
+                                  var transporter = nodemailer.createTransport({
+                                    service: 'gmail',
+                                    auth: {
+                                      user: 'historicwestsidegardenstest@gmail.com',
+                                      pass: 'testing12345!'
+                                    }
+                                  });
+  
+                                  var mailOptions = {
+                                    from: 'historicwestsidegardenstest@gmail.com',
+                                    to: d.email,
+                                    subject: 'New Survey to Complete',
+                                    text: message[rand]
+                                  };
+  
+                                  transporter.sendMail(mailOptions, function(error, info){
+                                    if (error) {
+                                      console.log(error);
+                                    } else {
+                                      console.log('Email sent: ' + info.response);
+                                    }
+                                  });
+  
+                                } 
+                                if (method == 'Phone' || method == 'Email and Phone') {
+                                  //sends a text out to specified users
+
+                                }
+                              }
+                            });
                           }
-                        }
+                        });
                       }
                     });
                   }

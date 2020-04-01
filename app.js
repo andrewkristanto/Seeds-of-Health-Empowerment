@@ -82,6 +82,16 @@ app.get("/checkin", urlencodedParser,  function(req, res) {
   res.sendFile(path.join(__dirname,'./html/check-in.html'));
 });
 
+app.get("/viewcheckin", urlencodedParser,  function(req, res) {
+  res.sendFile(path.join(__dirname,'./html/view-check-in.html'));
+});
+
+
+app.get("/checkintable", urlencodedParser,  function(req, res) {
+  res.sendFile(path.join(__dirname,'./html/check-in-table.html'));
+});
+
+
 app.get("/settings", urlencodedParser,  function(req, res) {
   res.sendFile(path.join(__dirname,'./html/settings.html'));
 });
@@ -300,9 +310,13 @@ app.get('/pull_gardeners_angels', urlencodedParser, function(req, res){
   });
 });
 
-app.get('/pull_check_ins', urlencodedParser, function(req, res){
-  console.log("Arrived on view check in page.");
+app.get('/view_check_ins', urlencodedParser, function(req, res){
   check_filter = req.body.checkFilter;
+  res.sendFile(path.join(__dirname,'./html/check-in-table.html'));
+});
+
+app.get('/pull_check_ins', urlencodedParser, function(req, res){
+  console.log("Arrived on view check in table page.");
   var query = "SELECT * " +
             "FROM CheckIn ";
       if (check_filter != "All") {

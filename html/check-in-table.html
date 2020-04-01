@@ -35,9 +35,10 @@
     <main class="page lanidng-page">
         <section class="portfolio-block block-intro">
             <div class="heading">
-                <h2 class="text-center">View Check Ins</h2>
+                <h2 class="text-center">Check Ins</h2>
             </div>
-            <div id="checkinfilter"></div>
+            <div id="checkin"></div>
+            <div id="checkintable"></div>
             
             
         </section>
@@ -66,7 +67,17 @@
                 
                 document.getElementById('checkinfilter').innerHTML = content;
             });
-        });
+            $.get("/pull_check_ins", function(data, status){
+                var content = "";
+                content += "<table class=\"table\"><thead><tr><th>Garden Angel</th><th>Gardener</th><th>Date</th><th>Notes</th></tr>";
+                    data.forEach((d) => {
+                        content += "<tr><td>" + d.angel + "</td><td>" + d.gardener + "</td><td>" + d.checkDate + "</td><td>" + d.checkText + "</td></tr>"; 
+                    });
+                    content += "</table>";
+                
+                document.getElementById('checkintable').innerHTML = content;
+            });
+          });
     </script>
 </body>
 

@@ -15,7 +15,9 @@
 </head>
 
 <body><nav class="navbar navbar-dark navbar-expand-lg fixed-top bg-white portfolio-navbar gradient" style="background-color: rgb(151,192,109);padding: 15.2px -21px;">
-        <div class="container"><img src="assets/img/logo.png" style="width: 75px;"><button data-toggle="collapse" class="navbar-toggler" data-target="#navbarNav"><span class="sr-only">Toggle navigation</span><span class="navbar-toggler-icon"></span></button>
+        <div class="container">
+            <a href="http://www.historicwestsidegardens.org/"><img src="assets/img/logo.png" style="width: 75px;"></a>
+            <button data-toggle="collapse" class="navbar-toggler" data-target="#navbarNav"><span class="sr-only">Toggle navigation</span><span class="navbar-toggler-icon"></span></button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="nav navbar-nav ml-auto">
                     <li class="nav-item" role="presentation"><form class="nav-link" action="/home" method="get"><button class="nav-link">Home</button></form></li>
@@ -24,7 +26,7 @@
                     <li class="nav-item" role="presentation"><form class="nav-link" action="/notifications" method="get"><button class="nav-link">Notifications</button></form></li>
                     <li class="nav-item" role="presentation"><form class="nav-link" action="/settings" method="get"><button class="nav-link">Settings</button></form></li>
                     <li class="nav-item" role="presentation"><form class="nav-link" action="/createsurvey" method="get"><button class="nav-link">Create Survey</button></form></li>
-                    <li class="nav-item" role="presentation"><form class="nav-link" action="/checkin" method="get"><button class="nav-link">Create Check In</button></form></li>
+                    <li class="nav-item" role="presentation"><form class="nav-link" action="/checkin" method="get"><button class="nav-link">Check Ins</button></form></li>
                     <li class="nav-item" role="presentation"><form class="nav-link" action="/surveydata" method="get"><button class="nav-link">Survey Data</button></form></li>
                     <li class="nav-item" role="presentation"><form class="nav-link" action="/angelapplication" method="get"><button class="nav-link">Garden Angels</button></form></li>
                     <li class="nav-item" role="presentation"><form class="nav-link" action="/logout" method="get"><button class="nav-link">Log Out</button></form></li>
@@ -32,17 +34,58 @@
             </div>
         </div>
     </nav>
-    <main class="page lanidng-page">
+    <main class="page landing-page">
         <section class="portfolio-block block-intro">
             <div class="heading">
-                <h2 class="text-center">Check Ins</h2>
+                <h2 id="name" class="text-center"></h2>
+                <br>
+                <h6 id="email" class="text-center"></h6>
+                <br>
+                <h6 id="address" class="text-center"></h6>
+                <br>
+                <h6 id="phone" class="text-center"></h6>
             </div>
-            <div id="checkin"></div>
-            <div id="checkintable"></div>
-            
+            <div class="about-me">
+                <div class="table-responsive">
+                    <h4 class="text-center">Check Ins</h4>
+                    <table class="table" id="checkinTable">
+                        <thead>
+                            <tr>
+                                <th>Garden Angel</th>
+                                <th>Gardener</th>
+                                <th>Date</th>
+                                <th>Notes</th>
+                            </tr>
+                        </thead>  
+                    </table>
+                </div>
+            </div>
             
         </section>
     </main>
+
+    <footer class="wsite-multicol-col page-footer" style="background-color: cornflowerblue; box-shadow: 0 50vh 0 50vh cornflowerblue;">
+        <a href="http://www.historicwestsidegardens.org/">
+            <img src="assets/img/logo.png" alt="Picture" style="width:75px;max-width:100%">
+        </a>
+        
+        <div style="text-align:center;"></div>
+        <span class="wsite-social wsite-social-default" style="padding-right: 8px;">
+            <a class="first-child wsite-social-item wsite-social-facebook" href="https://www.facebook.com/historicwestsidegardens/?ref=br_rs" target="_blank" alt="Facebook">
+                <img src="assets/img/facebook.png" alt="Picture" style="width:58px; height: 58px;">
+            </a>
+            <a class="wsite-social-item wsite-social-twitter" href="https://twitter.com/hwg_atl" target="_blank" alt="Twitter">
+                <img src="assets/img/twitter.png" alt="Picture" style="width:50px;">
+            </a>
+            <a class="wsite-social-item wsite-social-instagram" href="https://www.instagram.com/historic_westside_gardens/?hl=en" target="_blank" alt="Instagram">
+                <img src="assets/img/instagram.png" alt="Picture" style="width:50px;">
+            </a>
+            <a class="last-child wsite-social-item wsite-social-mail" href="mailto:gilfrank@historicwestsidegardens.org" target="_blank" alt="Mail">
+                <img src="assets/img/mail.png" alt="Picture" style="width:50px;">
+            </a>
+        </span>
+    </footer>
+
     <script src="assets/js/jquery.min.js"></script>
     <script src="assets/bootstrap/js/bootstrap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pikaday/1.6.1/pikaday.min.js"></script>
@@ -53,29 +96,20 @@
     <script src="assets/js/theme.js"></script>
     <script>
         $(document).ready(function(){
-            $.get("/pull_gardeners_angels", function(data, status){
-                var content = "";
-                content += "<form method=\"post\" action=\"/view_check_ins/\"><div>";
-                content += "<div class=\"container\" style=\"padding: 25px;\"><h4>Create your check in</h4></div><div class=\"form-group\"><select id=\"checkFilter\" name=\"checkFilter\"><option value=\"All\"> -- select the gardener -- </option>";
-                    data.forEach((d) => {
-                        if(d.role = 1)
-                        content += "<option value=\"" + d.email + "\">" + d.firstName + " " + d.lastName + "-" + d.email + "</option>"; 
-                    });
-                    content += "</select></div>";
-                    content += "<button class=\"btn btn-primary\" type=\"submit\" style=\"width: 278px;height: 30px;margin-top: 10;padding: 0;font-size: 13;\">Submit</button></div>";
-                    content += "</div></form>\n";
-                
-                document.getElementById('checkinfilter').innerHTML = content;
+            $.get("/pull_profile", function(data, status){
+                data.forEach((d) => {
+                    document.getElementById('name').innerHTML = d.firstName + " " + d.lastName;
+                    document.getElementById('email').innerHTML = d.email;
+                    document.getElementById('address').innerHTML = d.street + "<br>" + d.city + ", " + d.state + " " + d.zipcode;
+                    document.getElementById('phone').innerHTML = d.phoneNumber;
+                });
             });
+
             $.get("/pull_check_ins", function(data, status){
-                var content = "";
-                content += "<table class=\"table\"><thead><tr><th>Garden Angel</th><th>Gardener</th><th>Date</th><th>Notes</th></tr>";
-                    data.forEach((d) => {
-                        content += "<tr><td>" + d.angel + "</td><td>" + d.gardener + "</td><td>" + d.checkDate + "</td><td>" + d.checkText + "</td></tr>"; 
-                    });
-                    content += "</table>";
-                
-                document.getElementById('checkintable').innerHTML = content;
+                var table = $("#checkinTable thead");
+                data.forEach((d) =>{
+                    table.after("<tr><td>" + d.angel + "</td><td>" + d.gardener + "</td><td>" + formatDate(d.checkDate) + "</td><td>" + d.checkText + "</td></tr>");
+                });
             });
           });
     </script>

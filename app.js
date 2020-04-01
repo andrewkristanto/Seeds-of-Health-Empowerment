@@ -10,9 +10,10 @@ require('dotenv').config({path: appDir + '/.env'});
 
 var app = express();
 
-app.use('/assets/css', express.static('css'));
+app.use('/html/assets/css', express.static('css'));
+app.use(express.static(path.join(__dirname, 'html/assets/css')));
 app.use(express.static('html'));
-app.use('/assets/js', express.static('js'));
+app.use('/html/assets/js', express.static('js'));
 // app.use(validator());
 
 var con;
@@ -82,11 +83,6 @@ app.get("/checkin", urlencodedParser,  function(req, res) {
   res.sendFile(path.join(__dirname,'./html/check-in.html'));
 });
 
-app.get("/viewcheckin", urlencodedParser,  function(req, res) {
-  res.sendFile(path.join(__dirname,'./html/view-check-in.html'));
-});
-
-
 app.get("/checkintable", urlencodedParser,  function(req, res) {
   res.sendFile(path.join(__dirname,'./html/check-in-table.html'));
 });
@@ -113,6 +109,12 @@ app.post("/posts", urlencodedParser, function(req, res) {
   console.log(cur_post);
   console.log(req.body);
   res.sendFile(path.join(__dirname,'./html/posts.html'));
+});
+
+app.post('/view_check_ins', urlencodedParser, function(req, res){
+  check_filter = req.body.checkFilter;
+  console.log(check_filter)
+  res.sendFile(path.join(__dirname,'./html/check-in-table.html'));
 });
 
 // LOGIN =========================================================================================================================
@@ -261,6 +263,16 @@ app.get('/pull_profile',urlencodedParser,  function(req, res) {
   });
 });
 
+app.get('/pull_profile_checkin',urlencodedParser,  function(req, res) {
+  console.log("Arrived on profile page.");
+  con.query("SELECT * FROM User WHERE Email = '" + check_filter + "';", function(err,rows) {
+      if (err) throw err;
+      console.log('Data received from Db:\n');
+      console.log(rows);
+      res.json(rows);
+  });
+});
+
 app.get('/pull_notifications', urlencodedParser, function(req, res){
   console.log("Arrived on notifications page.");
   con.query("SELECT * FROM Notifications WHERE Email = '" + cur_user + "' ORDER BY notifDate;", function(err,rows) {
@@ -290,39 +302,8 @@ app.get('/pull_gardeners', urlencodedParser, function(req, res){
   console.log("Arrived on check in page.");
   con.query("SELECT * " +
             "FROM User " +
-            "WHERE role = 1", function(err,rows) {
-      if (err) throw err;
-      console.log('Data received from Db:\n');
-      console.log(rows);
-      res.json(rows)
-  });
-});
-
-app.get('/pull_gardeners_angels', urlencodedParser, function(req, res){
-  console.log("Arrived on filter check in page.");
-  con.query("SELECT * " +
-            "FROM User " +
-            "WHERE role = 1 or 2", function(err,rows) {
-      if (err) throw err;
-      console.log('Data received from Db:\n');
-      console.log(rows);
-      res.json(rows)
-  });
-});
-
-app.get('/view_check_ins', urlencodedParser, function(req, res){
-  check_filter = req.body.checkFilter;
-  res.sendFile(path.join(__dirname,'./html/check-in-table.html'));
-});
-
-app.get('/pull_check_ins', urlencodedParser, function(req, res){
-  console.log("Arrived on view check in table page.");
-  var query = "SELECT * " +
-            "FROM CheckIn ";
-      if (check_filter != "All") {
-        query += "Where Angel = " + check_filter + " Gardener = " + check_filter;
-      }
-  con.query(query, function(err,rows) {
+            "WHERE role = 1 " +
+            "ORDER BY firstName;", function(err,rows) {
       if (err) throw err;
       console.log('Data received from Db:\n');
       console.log(rows);
@@ -366,7 +347,8 @@ app.get('/pull_pending_angels', urlencodedParser, function(req, res){
   console.log("Arrived on Garden Angel page.");
   con.query("SELECT concat(firstName, ' ', lastName) as Name, userStatus, email " +
             "FROM User " +
-            "WHERE role = 2 and userStatus = \""+"pending"+ "\" ", function(err,rows) {
+            "WHERE role = 2 and userStatus = \""+"pending"+ "\" " + 
+            "ORDER BY firstName;", function(err,rows) {
       if (err) throw err;
       console.log('Data received from Db:\n');
       console.log(rows);
@@ -378,7 +360,8 @@ app.get('/pull_accepted_angels', urlencodedParser, function(req, res){
   console.log("Arrived on Garden Angel page.");
   con.query("SELECT concat(firstName, ' ', lastName) as Name, userStatus " +
             "FROM User " +
-            "WHERE role = 2 and userStatus = \""+"accepted"+ "\" ", function(err,rows) {
+            "WHERE role = 2 and userStatus = \""+"accepted"+ "\" " + 
+            "ORDER BY firstName;", function(err,rows) {
       if (err) throw err;
       console.log('Data received from Db:\n');
       console.log(rows);
@@ -461,20 +444,34 @@ app.get('/pull_alerts', urlencodedParser, function(req, res){
 app.get('/pull_checkins', urlencodedParser, function(req, res){
   console.log("Gardener check-ins");
   if(cur_role == 0){
-    con.query("SELECT * FROM CheckIn WHERE gardener = '" + cur_user + "';", function(err, rows){
+    con.query("SELECT * FROM CheckIn WHERE gardener = '" + cur_user + "' ORDER BY checkDate;", function(err, rows){
       if (err) throw err;
       console.log('Data received from Db:\n');
       console.log(rows);
       res.json(rows)
     });
   } else if(cur_role == 2){
-    con.query("SELECT * FROM CheckIn WHERE angel = '" + cur_user + "';", function(err, rows){
+    con.query("SELECT * FROM CheckIn WHERE angel = '" + cur_user + "' ORDER BY checkDate;", function(err, rows){
       if (err) throw err;
       console.log('Data received from Db:\n');
       console.log(rows);
       res.json(rows)
     });
   } 
+});
+
+app.get('/pull_check_ins', urlencodedParser, function(req, res){
+  console.log("Arrived on view check in table page.");
+  var query = "SELECT * " +
+            "FROM CheckIn " +
+            "WHERE gardener='" + check_filter + "' ORDER BY checkDate;";
+      
+  con.query(query, function(err,rows) {
+      if (err) throw err;
+      console.log('Data received from Db:\n');
+      console.log(rows);
+      res.json(rows)
+  });
 });
 
 // UPDATE ======================================================================================================================

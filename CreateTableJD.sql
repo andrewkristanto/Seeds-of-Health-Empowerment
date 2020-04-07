@@ -143,8 +143,6 @@ END//
 DELIMITER ;
 CREATE TABLE NotificationSettings (
 	email VARCHAR(50) NOT NULL,
-	frequency ENUM('Immediate', 'Every 8 hours', 'Once a day') NOT NULL DEFAULT "Immediate",
-	method ENUM('Email', 'Phone', 'Email and Phone') NOT NULL DEFAULT "Email",
 	toggle ENUM('On', 'Off') NOT NULL DEFAULT "On",
 	PRIMARY KEY (email),
     FOREIGN KEY (email)

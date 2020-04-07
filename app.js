@@ -87,11 +87,6 @@ app.get("/checkintable", urlencodedParser,  function(req, res) {
   res.sendFile(path.join(__dirname,'./html/check-in-table.html'));
 });
 
-
-app.get("/settings", urlencodedParser,  function(req, res) {
-  res.sendFile(path.join(__dirname,'./html/settings.html'));
-});
-
 app.get("/createsurvey", urlencodedParser,  function(req, res) {
   res.sendFile(path.join(__dirname,'./html/create-survey.html'));
 });
@@ -184,7 +179,7 @@ app.post('/register',urlencodedParser,  function(req, res) {
       var query = "INSERT INTO User (password, firstName, lastName, street, city, state, zipcode, email, phoneNumber, userStatus, lastLogin, role) "+
       "VALUES ('" + hash + "', '" + fname + "', '" + lname + "', '" + street + "', '" + city + "', '" + state + "', '" + zip + "', '" + email + "', '" + phone + "', 'pending', null, " + role + ");";
 
-      var query2 = "INSERT INTO NotificationSettings (email, toggle, method) VALUES ('" + email + "', 'On', 'Email');";
+      var query2 = "INSERT INTO NotificationSettings (email, toggle) VALUES ('" + email + "', 'On');";
 
       console.log(query);
       console.log(query2);
@@ -556,10 +551,8 @@ app.post('/update_password',urlencodedParser,  function(req, res) {
 
 app.post('/updateSettings', urlencodedParser, function(req, res) {
   var toggle = req.body.toggle;
-  var frequency = req.body.frequency;
-  var method = req.body.method;
   
-  var query = "UPDATE NotificationSettings SET toggle='" + toggle + "', frequency='" + frequency + "', method='" + method + "' WHERE email='" + cur_user + "';";
+  var query = "UPDATE NotificationSettings SET toggle='" + toggle + "' WHERE email='" + cur_user + "';";
   console.log(query);
 
   con.query(query, function(err) {
@@ -731,45 +724,36 @@ app.post('/submit_post', urlencodedParser, function(req, res) {
     
                         rows.forEach((data) => {
                           console.log(rows[0].toggle);
-                          console.log(rows[0].method);
 
                           var toggle = rows[0].toggle;
-                          var method = rows[0].method;
                           let message = ["Someone has created a new post, check it out!", "A new post has been uploaded to the Community Feed.", "Take a look at the Community Feed, someone has uploaded a new post!"];
                           var rand = Math.round(Math.random() * 3) - 1;
                           if (toggle == 'On') {
-                            if (method == 'Email' || method == 'Email and Phone') {
-                              //sends an email out to specified users
-                              var nodemailer = require('nodemailer');
+                            //sends an email out to specified users
+                            var nodemailer = require('nodemailer');
 
-                              var transporter = nodemailer.createTransport({
-                                service: 'gmail',
-                                auth: {
-                                  user: 'historicwestsidegardenstest@gmail.com',
-                                  pass: 'testing12345!'
-                                }
-                              });
+                            var transporter = nodemailer.createTransport({
+                              service: 'gmail',
+                              auth: {
+                                user: 'historicwestsidegardenstest@gmail.com',
+                                pass: 'testing12345!'
+                              }
+                            });
 
-                              var mailOptions = {
-                                from: 'historicwestsidegardenstest@gmail.com',
-                                to: d.email,
-                                subject: 'A New Post Has Been Created',
-                                text: message[rand]
-                              };
+                            var mailOptions = {
+                              from: 'historicwestsidegardenstest@gmail.com',
+                              to: d.email,
+                              subject: 'A New Post Has Been Created',
+                              text: message[rand]
+                            };
 
-                              transporter.sendMail(mailOptions, function(error, info){
-                                if (error) {
-                                  console.log(error);
-                                } else {
-                                  console.log('Email sent: ' + info.response);
-                                }
-                              });
-
-                            } 
-                            if (method == 'Phone' || method == 'Email and Phone') {
-                              //sends a text out to specified users
-
-                            }
+                            transporter.sendMail(mailOptions, function(error, info){
+                              if (error) {
+                                console.log(error);
+                              } else {
+                                console.log('Email sent: ' + info.response);
+                              }
+                            });
                           }
                         });
                       }
@@ -854,45 +838,36 @@ app.post('/submit_comment', urlencodedParser, function(req, res) {
     
                       rows.forEach((data) => {
                         console.log(rows[0].toggle);
-                        console.log(rows[0].method);
 
                         var toggle = rows[0].toggle;
-                        var method = rows[0].method;
                         let message = ["Someone has responded to your post, check it out!", "A new comment has appeared on your post.", "Take a look at your post, someone has commented!"];
                         var rand = Math.round(Math.random() * 3) - 1;
                         if (toggle == 'On') {
-                          if (method == 'Email' || method == 'Email and Phone') {
-                            //sends an email out to specified users
-                            var nodemailer = require('nodemailer');
+                          //sends an email out to specified users
+                          var nodemailer = require('nodemailer');
 
-                            var transporter = nodemailer.createTransport({
-                              service: 'gmail',
-                              auth: {
-                                user: 'historicwestsidegardenstest@gmail.com',
-                                pass: 'testing12345!'
-                              }
-                            });
+                          var transporter = nodemailer.createTransport({
+                            service: 'gmail',
+                            auth: {
+                              user: 'historicwestsidegardenstest@gmail.com',
+                              pass: 'testing12345!'
+                            }
+                          });
 
-                            var mailOptions = {
-                              from: 'historicwestsidegardenstest@gmail.com',
-                              to: email,
-                              subject: 'New Comment Made on Post',
-                              text: message[rand]
-                            };
+                          var mailOptions = {
+                            from: 'historicwestsidegardenstest@gmail.com',
+                            to: email,
+                            subject: 'New Comment Made on Post',
+                            text: message[rand]
+                          };
 
-                            transporter.sendMail(mailOptions, function(error, info){
-                              if (error) {
-                                console.log(error);
-                              } else {
-                                console.log('Email sent: ' + info.response);
-                              }
-                            });
-
-                          } 
-                          if (method == 'Phone' || method == 'Email and Phone') {
-                            //sends a text out to specified users
-                            
-                          }
+                          transporter.sendMail(mailOptions, function(error, info){
+                            if (error) {
+                              console.log(error);
+                            } else {
+                              console.log('Email sent: ' + info.response);
+                            }
+                          });
                         }
                       });
                     }
@@ -991,45 +966,36 @@ app.post('/submit_survey_question', urlencodedParser, function(req, res) {
 
                             rows.forEach((data) => {
                               console.log(rows[0].toggle);
-                              console.log(rows[0].method);
   
                               var toggle = rows[0].toggle;
-                              var method = rows[0].method;
                               let message = ["A new survey is out, please complete it!", "We have just release a new survey, check it out!", "Please complete the new survey in the survey tab!"];
                               var rand = Math.round(Math.random() * 3) - 1;
                               if (toggle == 'On') {
-                                if (method == 'Email' || method == 'Email and Phone') {
-                                  //sends an email out to specified users
-                                  var nodemailer = require('nodemailer');
-  
-                                  var transporter = nodemailer.createTransport({
-                                    service: 'gmail',
-                                    auth: {
-                                      user: 'historicwestsidegardenstest@gmail.com',
-                                      pass: 'testing12345!'
-                                    }
-                                  });
-  
-                                  var mailOptions = {
-                                    from: 'historicwestsidegardenstest@gmail.com',
-                                    to: d.email,
-                                    subject: 'New Survey to Complete',
-                                    text: message[rand]
-                                  };
-  
-                                  transporter.sendMail(mailOptions, function(error, info){
-                                    if (error) {
-                                      console.log(error);
-                                    } else {
-                                      console.log('Email sent: ' + info.response);
-                                    }
-                                  });
-  
-                                } 
-                                if (method == 'Phone' || method == 'Email and Phone') {
-                                  //sends a text out to specified users
+                                //sends an email out to specified users
+                                var nodemailer = require('nodemailer');
 
-                                }
+                                var transporter = nodemailer.createTransport({
+                                  service: 'gmail',
+                                  auth: {
+                                    user: 'historicwestsidegardenstest@gmail.com',
+                                    pass: 'testing12345!'
+                                  }
+                                });
+
+                                var mailOptions = {
+                                  from: 'historicwestsidegardenstest@gmail.com',
+                                  to: d.email,
+                                  subject: 'New Survey to Complete',
+                                  text: message[rand]
+                                };
+
+                                transporter.sendMail(mailOptions, function(error, info){
+                                  if (error) {
+                                    console.log(error);
+                                  } else {
+                                    console.log('Email sent: ' + info.response);
+                                  }
+                                });
                               }
                             });
                           }

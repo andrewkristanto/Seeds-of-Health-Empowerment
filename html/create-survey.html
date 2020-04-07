@@ -102,7 +102,7 @@
                 mc.style.display = "block";
             }
             else {
-                mc.style.display = "none";
+                $("[id='MC']").css({"display":"none"});
             }
         }
 
@@ -110,7 +110,7 @@
             let num = dropdown.options[dropdown.selectedIndex].value;
             let inputs = "";
             for (let i = 1; i <= num; i++) {
-                    inputs += "<div class=\"form-group\"><input class=\"form-control\" type=\"text\" name=\"choices\" placeholder=\"Answer Choice " + i + "\" required></div>"
+                    inputs += "<div id=\"MC\" class=\"form-group\"><input class=\"form-control\" type=\"text\" name=\"choices\" placeholder=\"Answer Choice " + i + "\" required></div>"
             }
             document.getElementById("choices").innerHTML = inputs;
         }

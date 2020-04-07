@@ -77,6 +77,38 @@
     <script src="assets/js/theme.js"></script>
     <script>
         $(document).ready(function(){
+            $.get("/pull_accepted_angels", function(data, status){
+                var content = "";
+
+                content += "<div class=" + 'table-responsive'+ "> "+
+                                    "<table class=" +'table'+"> "+
+                                        "<thead> "+
+                                            "<tr> "+
+                                                "<th>Current Garden Angels</th> "+
+                                            "</tr> "+
+                                       "</thead> "+
+                                        "<tbody> ";
+
+                data.forEach((d) => {
+                    content += "<tr> "+
+                                "<td><form style='box-shadow:unset; padding:unset;' class='nav-link' action='/view_angel_check_ins/" + d.userStatus + "' method='get'><button>"+d.Name+"</button></form></td> "+
+                                "</tr> ";
+
+                    console.log(d.Name);
+                    console.log(d.userStatus);
+                });
+
+                content += "</tbody> "+
+                            "</table> "+
+                            "</div>";
+
+                if (data.length == 0) {
+                    content += "<br><h5 class=\"no-result\">No users are currently garden angels</h5>";
+                }
+
+                document.getElementById('accepted_angels').innerHTML = content;
+            });
+
             $.get("/pull_pending_angels", function(data, status){
                 var content = "";
                 //create table
@@ -117,38 +149,6 @@
                 }
 
                 document.getElementById('pending_angels').innerHTML = content;
-            });
-
-            $.get("/pull_accepted_angels", function(data, status){
-                var content = "";
-
-                content += "<div class=" + 'table-responsive'+ "> "+
-                                    "<table class=" +'table'+"> "+
-                                        "<thead> "+
-                                            "<tr> "+
-                                                "<th>Current Garden Angels</th> "+
-                                            "</tr> "+
-                                       "</thead> "+
-                                        "<tbody> ";
-
-                data.forEach((d) => {
-                    content += "<tr> "+
-                                "<td>"+d.Name+"</td> "+
-                                "</tr> ";
-
-                    console.log(d.Name);
-                    console.log(d.userStatus);
-                });
-
-                content += "</tbody> "+
-                            "</table> "+
-                            "</div>";
-
-                if (data.length == 0) {
-                    content += "<br><h5 class=\"no-result\">No users are currently garden angels</h5>";
-                }
-
-                document.getElementById('accepted_angels').innerHTML = content;
             });
 
             $.get("/pull_alerts", function(data, status){

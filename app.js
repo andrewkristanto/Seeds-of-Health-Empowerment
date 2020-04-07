@@ -112,6 +112,13 @@ app.post('/view_check_ins', urlencodedParser, function(req, res){
   res.sendFile(path.join(__dirname,'./html/check-in-table.html'));
 });
 
+app.get('/view_angel_check_ins/:angel', urlencodedParser, function(req, res){
+  // check_filter = req.params.angel;
+  check_filter = "andrewkristanto555@gmail.com";
+  console.log(check_filter)
+  res.sendFile(path.join(__dirname,'./html/check-in-table.html'));
+});
+
 // LOGIN =========================================================================================================================
 app.post('/',urlencodedParser,  function(req, res) {
   var email = req.body.email;
@@ -343,7 +350,7 @@ app.get('/pull_pending_angels', urlencodedParser, function(req, res){
   con.query("SELECT concat(firstName, ' ', lastName) as Name, userStatus, email " +
             "FROM User " +
             "WHERE role = 2 and userStatus = \""+"pending"+ "\" " + 
-            "ORDER BY firstName;", function(err,rows) {
+            "ORDER BY firstName, lastName;", function(err,rows) {
       if (err) throw err;
       console.log('Data received from Db:\n');
       console.log(rows);
@@ -353,10 +360,10 @@ app.get('/pull_pending_angels', urlencodedParser, function(req, res){
 
 app.get('/pull_accepted_angels', urlencodedParser, function(req, res){
   console.log("Arrived on Garden Angel page.");
-  con.query("SELECT concat(firstName, ' ', lastName) as Name, userStatus " +
+  con.query("SELECT concat(firstName, ' ', lastName) as Name, userStatus, email " +
             "FROM User " +
             "WHERE role = 2 and userStatus = \""+"accepted"+ "\" " + 
-            "ORDER BY firstName;", function(err,rows) {
+            "ORDER BY firstName, lastName;", function(err,rows) {
       if (err) throw err;
       console.log('Data received from Db:\n');
       console.log(rows);

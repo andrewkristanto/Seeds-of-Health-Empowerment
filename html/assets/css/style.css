@@ -10,6 +10,7 @@
 	margin: 0;
     background: transparent;
     border: none;
+    box-shadow: unset;
 }
 
 ul{
@@ -54,4 +55,13 @@ ul{
 
 .alert {
     text-align: left;
+}
+
+.table-link:hover {
+  color: lightgrey;
+}
+
+.table-link {
+  box-shadow: unset;
+  padding: unset;
 }

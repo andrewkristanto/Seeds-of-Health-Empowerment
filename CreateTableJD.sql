@@ -108,9 +108,10 @@ CREATE TABLE Comments (
 	email VARCHAR(50) NOT NULL,
 	role TINYINT NOT NULL,
     postId int NOT NULL,
+	commentId int NOT NULL auto_increment,
 	commentText VARCHAR(300) NOT NULL,
 	commentDate timestamp default current_timestamp,
-	PRIMARY KEY (email, postId, commentDate),
+	PRIMARY KEY (commentId),
     FOREIGN KEY (email, role)
 		REFERENCES User (email, role)
 			ON DELETE CASCADE

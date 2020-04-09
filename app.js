@@ -173,13 +173,37 @@ app.post('/register',urlencodedParser,  function(req, res) {
 
   var valid = true;
   if (password.length < 8 || password.length > 20) {
-    alerts.push({alert: "Password must have a length between 8 and 20 characters.", type: "danger"});
     valid = false;
+    alerts.push({alert: "Password must have a length between 8 and 20 characters.", type: "danger"});
   }
   if (password != confirmpass) {
-    alerts.push({alert: "Passwords do not match.", type: "danger"});
     valid = false;
+    alerts.push({alert: "Passwords do not match.", type: "danger"});
   }
+
+  var query4 = "SELECT email FROM User";
+  con.query(query4, function(err, rows) {
+    if (err) {
+      console.log("Failed to pull emails from database.")
+      console.log(err);
+      res.redirect(req.get('referer'));
+    } else {
+      console.log('Data received from Db:\n');
+      console.log(rows);
+
+      var check = false;
+
+      rows.forEach((d) => {
+        if (d.email.toLowerCase() == email.toLowerCase()) {
+          check = true;
+        }
+      });
+
+      if (check) {
+        alerts.push({alert: "Email already exists in the database.", type: "danger"});
+      }
+    }
+  });
 
   if (valid) {
     bcrypt.hash(password, 10, function(err, hash) {
@@ -193,7 +217,9 @@ app.post('/register',urlencodedParser,  function(req, res) {
       con.query(query, function(err) {
         if (err) {
           console.log("Registration attempt failed");
-          alerts.push("Registration attempt failed, please try again.");
+          if (alerts.length == 0) {
+            alerts.push({alert: "Registration attempt failed, please try again.", type: "danger"});
+          }
           console.log(err);
           res.redirect(req.get('referer'));
         } else {
@@ -473,6 +499,62 @@ app.get('/pull_check_ins', urlencodedParser, function(req, res){
       console.log('Data received from Db:\n');
       console.log(rows);
       res.json(rows)
+  });
+});
+
+app.post('/pull_forgot_password', urlencodedParser, function(req, res) {
+  var email = req.body.email;
+
+  var query = "SELECT email FROM User";
+  con.query(query4, function(err, rows) {
+    if (err) {
+      console.log("Failed to pull emails from database.")
+      console.log(err);
+      res.redirect(req.get('referer'));
+    } else {
+      console.log('Data received from Db:\n');
+      console.log(rows);
+
+      var check = false;
+
+      rows.forEach((d) => {
+        if (d.email.toLowerCase() == email.toLowerCase()) {
+          check = true;
+        }
+      });
+
+      if (check) {
+        //send an email to reset user's password
+        var nodemailer = require('nodemailer');
+
+        var transporter = nodemailer.createTransport({
+          service: 'gmail',
+          auth: {
+            user: 'historicwestsidegardenstest@gmail.com',
+            pass: 'testing12345!'
+          }
+        });
+
+        var text = "Here is a temporary : ";
+
+        var mailOptions = {
+          from: 'historicwestsidegardenstest@gmail.com',
+          to: email,
+          subject: 'Reset Password',
+          text: text
+        };
+
+        transporter.sendMail(mailOptions, function(error, info){
+          if (error) {
+            console.log(error);
+          } else {
+            console.log('Email sent: ' + info.response);
+          }
+        });
+      } else {
+        alerts.push({alert: "Email already exists in the database.", type: "danger"});
+      }
+    }
   });
 });
 

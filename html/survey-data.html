@@ -47,7 +47,7 @@
                 
             </div>
 
-             <div class="container" id='drop_down'>
+            <div class="container" id='drop_down'>
 <!--                 <select id="test_dropdown" class="form-control" style="width: 30%; display: inline" onchange="test();">
                 <option disabled selected>Select Survey</option>
                 <option value="1">aaaa</option>
@@ -64,6 +64,7 @@
             </div>
             <div>
                  <div id="chart_div" class="container" style="width:80%"></div>
+                 <div id="delete_button" class="container" style="width:80%"></div>
             </div>          
             <div class="container"></div>
             <div id="test"></div>
@@ -125,13 +126,15 @@
             $(document).ready(function(){
                 $.get("/pull_survey_question_type/" +id+ "", function(data, status){
                     var type = data[0].questionType;
+                    var del_but = "<form method=\"post\" action=\"delete_survey\"><button class=\"btn btn-primary\" type=\"submit\" style=\"width: 278px;height: 30px;margin-top: 10;padding: 0;font-size: 13;\">Delete this Survey</button></form>";
                         if (type == 'mc') {
                             google.charts.load('current', {packages: ['corechart', 'bar']});
-                            google.charts.setOnLoadCallback(drawBasicGraph);                            
+                            google.charts.setOnLoadCallback(drawBasicGraph);
+                            document.getElementById('delete_button').innerHTML = del_but;
                         } else if (type == 'fr') {
-                            var content = "";
                             $(document).ready(function(){
                                 $.get("/pull_survey_data_fr/" +id+ "", function(data, status){
+                                    var content = "";
                                     if (data[0] == null) {
                                         content += "<h5 class=\"no-result\">No survey results for this question at this time.</h5>";
                                     } else {
@@ -145,6 +148,7 @@
                                 document.getElementById('question').innerHTML = "<h4>Question: "+question+"</h4>";
                                 content += "</div>";
                                 document.getElementById('chart_div').innerHTML = content;
+                                document.getElementById('delete_button').innerHTML = del_but;
                                 });
                             });
 

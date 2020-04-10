@@ -77,13 +77,15 @@
     <script src="assets/js/theme.js"></script>
     <script>
         $(document).ready(function(){
-            $.get("/pull_gardeners", function(data, status){
+            $.get("/pull_gardeners_angels", function(data, status){
                 // creating check ins 
                 var content = "";
                 content += "<form method=\"post\" action=\"/submit_check_in/\">";
                 content += "<h4 style=\"margin: 10px;\">Select a Gardener</h4><div class=\"form-group\"><select id=\"gardenerText\" name=\"gardenerText\"><option value=\"\" disabled> -- select the gardener -- </option>";
                 data.forEach((d) => {
-                        content += "<option value=\"" + d.email + "\">" + d.firstName + " " + d.lastName + " - " + d.email + "</option>"; 
+                        if (d.role == 1) {
+                            content += "<option value=\"" + d.email + "\">" + d.firstName + " " + d.lastName + " - " + d.email + "</option>"; 
+                        }
                 });
                 content += "</select></div>";
                 content += "<textarea required id=\"checkText\" name=\"checkText\" style=\"margin: 30px; width: 75%; height: 100px;\"placeholder=\"Write a comment\"></textarea>";
@@ -95,9 +97,10 @@
                 // viewing check ins
                 var content = "";
                 content += "<form method=\"post\" action=\"/view_check_ins\">";
-                content += "<h4 style=\"margin: 10px;\">Select a Gardener</h4><div class=\"form-group\"><select id=\"checkFilter\" name=\"checkFilter\"><option value=\"\" disabled> -- select the gardener -- </option>";
+                content += "<h4 style=\"margin: 10px;\">Select a Gardener or Garden Angel</h4><div class=\"form-group\"><select id=\"checkFilter\" name=\"checkFilter\"><option value=\"\" disabled> -- select a gardener or garden angel -- </option>";
                 data.forEach((d) => {
-                        content += "<option value=\"" + d.email + "\">" + d.firstName + " " + d.lastName + " - " + d.email + "</option>"; 
+                        var userRole = d.role == 1 ? "Gardener" : "Garden Angel";
+                        content += "<option value=\"" + d.email + "," + d.role + "\">" + d.firstName + " " + d.lastName + " - " + userRole + "</option>"; 
                 });
                 content += "</select></div>";
                 content += "<div class=\"container\" style=\"padding: 10px;\"><button class=\"btn btn-primary\" type=\"submit\" style=\"width: 278px;height: 30px;margin-top: 10;padding: 0;font-size: 13;\">Submit</button></div>";

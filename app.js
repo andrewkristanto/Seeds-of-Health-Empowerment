@@ -26,7 +26,8 @@ var cur_user = null;
 var cur_role = null;
 var cur_post = null;
 var alerts = [];
-var check_filter = null
+var check_filter = null;
+var check_filter_role = null;
 
 var api = express.Router();
 
@@ -107,15 +108,10 @@ app.post("/posts", urlencodedParser, function(req, res) {
 });
 
 app.post('/view_check_ins', urlencodedParser, function(req, res){
-  check_filter = req.body.checkFilter;
-  console.log(check_filter)
-  res.sendFile(path.join(__dirname,'./html/check-in-table.html'));
-});
-
-app.get('/view_angel_check_ins/:angel', urlencodedParser, function(req, res){
-  // check_filter = req.params.angel;
-  check_filter = "andrewkristanto555@gmail.com";
-  console.log(check_filter)
+  var params = req.body.checkFilter.split(",");
+  check_filter = params[0];
+  check_filter_role = params[1];
+  console.log(params);
   res.sendFile(path.join(__dirname,'./html/check-in-table.html'));
 });
 
@@ -331,7 +327,20 @@ app.get('/pull_gardeners', urlencodedParser, function(req, res){
   con.query("SELECT * " +
             "FROM User " +
             "WHERE role = 1 " +
-            "ORDER BY firstName;", function(err,rows) {
+            "ORDER BY role, firstName, lastName;", function(err,rows) {
+      if (err) throw err;
+      console.log('Data received from Db:\n');
+      console.log(rows);
+      res.json(rows)
+  });
+});
+
+app.get('/pull_gardeners_angels', urlencodedParser, function(req, res){
+  console.log("Arrived on check in page.");
+  con.query("SELECT * " +
+            "FROM User " +
+            "WHERE role = 1 or role = 2 " +
+            "ORDER BY role, firstName, lastName;", function(err,rows) {
       if (err) throw err;
       console.log('Data received from Db:\n');
       console.log(rows);
@@ -471,7 +480,7 @@ app.get('/pull_alerts', urlencodedParser, function(req, res){
 
 app.get('/pull_checkins', urlencodedParser, function(req, res){
   console.log("Gardener check-ins");
-  if(cur_role == 0){
+  if(cur_role == 1){
     con.query("SELECT * FROM CheckIn WHERE gardener = '" + cur_user + "' ORDER BY checkDate;", function(err, rows){
       if (err) throw err;
       console.log('Data received from Db:\n');
@@ -490,16 +499,21 @@ app.get('/pull_checkins', urlencodedParser, function(req, res){
 
 app.get('/pull_check_ins', urlencodedParser, function(req, res){
   console.log("Arrived on view check in table page.");
-  var query = "SELECT * " +
-            "FROM CheckIn " +
-            "WHERE gardener='" + check_filter + "' ORDER BY checkDate;";
-      
-  con.query(query, function(err,rows) {
+  if(check_filter_role == 1){
+    con.query("SELECT * FROM CheckIn WHERE gardener = '" + check_filter + "' ORDER BY checkDate;", function(err, rows){
       if (err) throw err;
       console.log('Data received from Db:\n');
       console.log(rows);
       res.json(rows)
-  });
+    });
+  } else if(check_filter_role == 2){
+    con.query("SELECT * FROM CheckIn WHERE angel = '" + check_filter + "' ORDER BY checkDate;", function(err, rows){
+      if (err) throw err;
+      console.log('Data received from Db:\n');
+      console.log(rows);
+      res.json(rows)
+    });
+  } 
 });
 
 app.post('/pull_forgot_password', urlencodedParser, function(req, res) {

@@ -121,15 +121,38 @@ app.post('/',urlencodedParser,  function(req, res) {
   var password = req.body.password;
   console.log("post received: Username: %s Password: %s", email, password);
 
+  var query4 = "SELECT email FROM User;";
+  con.query(query4, function(err, rows) {
+    if (err) {
+      console.log("Failed to pull emails from database.")
+      console.log(err);
+      res.redirect(req.get('referer'));
+    } else {
+      console.log('Data received from Db:\n');
+      console.log(rows);
+
+      var check = false;
+
+      rows.forEach((d) => {
+        if (d.email.toLowerCase() == email.toLowerCase()) {
+          check = true;
+        }
+      });
+
+      if (!check) {
+        alerts.push({alert: "Invalid username.", type: "danger"});
+      }
+    }
+  });
+
   //checks login against database
   var request = "SELECT email, password, role FROM User WHERE email = '" + email + "'";
   con.query(request, function (err, result) {
     if (err){
       res.redirect(req.get('referer'));
     }
-    if (!result){
+    if (alerts.length != 0){
       console.log("Invalid username");
-      alerts.push({alert: "Invalid username.", type: "danger"});
       res.redirect(req.get('referer'));
     } else {
       var pw_hash = result[0]["password"];
@@ -177,7 +200,7 @@ app.post('/register',urlencodedParser,  function(req, res) {
     alerts.push({alert: "Passwords do not match.", type: "danger"});
   }
 
-  var query4 = "SELECT email FROM User";
+  var query4 = "SELECT email FROM User;";
   con.query(query4, function(err, rows) {
     if (err) {
       console.log("Failed to pull emails from database.")
@@ -528,62 +551,6 @@ app.get('/pull_check_ins', urlencodedParser, function(req, res){
   } 
 });
 
-app.post('/pull_forgot_password', urlencodedParser, function(req, res) {
-  var email = req.body.email;
-
-  var query = "SELECT email FROM User";
-  con.query(query4, function(err, rows) {
-    if (err) {
-      console.log("Failed to pull emails from database.")
-      console.log(err);
-      res.redirect(req.get('referer'));
-    } else {
-      console.log('Data received from Db:\n');
-      console.log(rows);
-
-      var check = false;
-
-      rows.forEach((d) => {
-        if (d.email.toLowerCase() == email.toLowerCase()) {
-          check = true;
-        }
-      });
-
-      if (check) {
-        //send an email to reset user's password
-        var nodemailer = require('nodemailer');
-
-        var transporter = nodemailer.createTransport({
-          service: 'gmail',
-          auth: {
-            user: 'historicwestsidegardenstest@gmail.com',
-            pass: 'testing12345!'
-          }
-        });
-
-        var text = "Here is a temporary : ";
-
-        var mailOptions = {
-          from: 'historicwestsidegardenstest@gmail.com',
-          to: email,
-          subject: 'Reset Password',
-          text: text
-        };
-
-        transporter.sendMail(mailOptions, function(error, info){
-          if (error) {
-            console.log(error);
-          } else {
-            console.log('Email sent: ' + info.response);
-          }
-        });
-      } else {
-        alerts.push({alert: "Email already exists in the database.", type: "danger"});
-      }
-    }
-  });
-});
-
 app.get('/pull_survey_question', urlencodedParser, function(req, res){
   console.log("Pulling all survey questions");
   con.query("SELECT question, qID FROM SurveyQuestions", function(err,rows) {
@@ -796,6 +763,31 @@ app.post('/submit_survey/:query',urlencodedParser,  function(req, res) {
 });
 
 
+<<<<<<< Updated upstream
+=======
+app.post('/delete_survey',urlencodedParser,  function(req, res) {
+  console.log("Received survey response");
+  values = req.params.survey_select.value.split('##');
+  var id = values[0];
+  var question = values[1];
+  console.log(req.body);
+  var content = "New Survey: " + question;
+  var query = "delete from SurveyQuestions where qID = " + id + "; DELETE FROM Notifications where content = " + content + ";";
+  console.log(query);
+  con.query(query, function(err) {
+    if (err) {
+      console.log("Submit survey attempt failed.");
+      alerts.push({alert: "deleting survey failed, please try again.", type: "danger"});
+      res.redirect(req.get('referer'));
+    } else {
+      console.log("Delete survey success."); 
+      alerts.push({alert: "Deleted survey successfully!", type: "success"});
+      res.redirect(req.get('referer'));
+    }
+  });
+});
+
+>>>>>>> Stashed changes
 app.post('/submit_post', urlencodedParser, function(req, res) {
   console.log("Received post response");
   var postText = req.body.postText;
@@ -823,7 +815,7 @@ app.post('/submit_post', urlencodedParser, function(req, res) {
 
             rows.forEach((d) => { // use email to send notification to each user
               //send a notification out to all specified users and put the notification in the Notifications Tab table
-              if (cur_user != d.email) {
+              if (cur_user.toLowerCase() != d.email.toLowerCase()) {
                 var content = "New Post: " + postText;
                 var query6 = "INSERT INTO Notifications (email, content) VALUES ('" + d.email + "', '" + content + "');";
                 con.query(query6, function(err){
@@ -937,7 +929,7 @@ app.post('/submit_comment', urlencodedParser, function(req, res) {
             console.log(rows);
             var email = rows[0].email;
             //send a notification to owner of post
-            if (cur_user != email) {
+            if (cur_user.toLowerCase() != email.toLowerCase()) {
               var content = "New Comment: " + commentText;
               var query3 = "INSERT INTO Notifications (email, content) VALUES ('" + email + "', '" + content + "');";
               con.query(query3, function(err){

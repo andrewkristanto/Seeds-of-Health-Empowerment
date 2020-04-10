@@ -321,13 +321,25 @@ app.get('/pull_survey', urlencodedParser, function(req, res){
   });
 });
 
+app.get('/pull_users', urlencodedParser, function(req, res){
+  console.log("Arrived on check in page.");
+  con.query("SELECT * " +
+            "FROM User " +
+            "WHERE role = 0 " +
+            "ORDER BY firstName, lastName;", function(err,rows) {
+      if (err) throw err;
+      console.log('Data received from Db:\n');
+      console.log(rows);
+      res.json(rows)
+  });
+});
 
 app.get('/pull_gardeners', urlencodedParser, function(req, res){
   console.log("Arrived on check in page.");
   con.query("SELECT * " +
             "FROM User " +
             "WHERE role = 1 " +
-            "ORDER BY role, firstName, lastName;", function(err,rows) {
+            "ORDER BY firstName, lastName;", function(err,rows) {
       if (err) throw err;
       console.log('Data received from Db:\n');
       console.log(rows);
@@ -572,6 +584,61 @@ app.post('/pull_forgot_password', urlencodedParser, function(req, res) {
   });
 });
 
+app.get('/pull_survey_question', urlencodedParser, function(req, res){
+  console.log("Pulling all survey questions");
+  con.query("SELECT question, qID FROM SurveyQuestions", function(err,rows) {
+      if (err) throw err;
+      console.log('Data received from Db:\n');
+      console.log(rows);
+      res.json(rows)
+  });
+});
+
+app.get('/pull_survey_question_type/:id', urlencodedParser, function(req, res){
+  console.log("Pulling all survey questions");
+  var qID = req.params.id;
+  con.query("SELECT questionType FROM SurveyQuestions WHERE qID = "+qID+" ", function(err,rows) {
+      if (err) throw err;
+      console.log('Data received from Db:\n');
+      console.log(rows);
+      res.json(rows)
+  });
+});
+
+app.get('/pull_survey_data_mc/:id', urlencodedParser, function(req, res){
+  console.log("Pulling survey results");
+  var qID = req.params.id;
+  con.query("SELECT  answerChoice, IF(c is not NULL, c, 0) as count " +
+            "FROM " +
+            "(SELECT response, count(response) AS c " +
+            "FROM SurveyResponses " +
+            "WHERE qID = "+qID+" " +
+            "GROUP BY response) AS A " +
+            "RIGHT JOIN " +
+            "(SELECT answerChoice " +
+            "FROM SurveyAnswers " +
+            "WHERE qID = "+qID+") AS B " +
+            "ON A.response = B.answerChoice " +
+            "GROUP BY B.answerChoice", function(err,rows) {
+      if (err) throw err;
+      console.log('Data received from Db:\n');
+      console.log(rows);
+      res.json(rows)
+  });
+});
+
+app.get('/pull_survey_data_fr/:id', urlencodedParser, function(req, res){
+  var qID = req.params.id;
+  con.query("SELECT response " +
+            "FROM SurveyResponses " +
+            "WHERE qID = "+qID+" AND response != ''", function(err,rows) {
+      if (err) throw err;
+      console.log('Data received from Db:\n');
+      console.log(rows);
+      res.json(rows)
+  });
+});
+
 // UPDATE ======================================================================================================================
 app.post('/update_profile',urlencodedParser,  function(req, res) {
   var fname = req.body.fname;
@@ -704,62 +771,6 @@ app.post('/update_angels/:query', urlencodedParser, function(req, res){
 
 });
 
-app.get('/pull_survey_question', urlencodedParser, function(req, res){
-  console.log("Pulling all survey questions");
-  con.query("SELECT question, qID FROM SurveyQuestions", function(err,rows) {
-      if (err) throw err;
-      console.log('Data received from Db:\n');
-      console.log(rows);
-      res.json(rows)
-  });
-});
-
-app.get('/pull_survey_question_type/:id', urlencodedParser, function(req, res){
-  console.log("Pulling all survey questions");
-  var qID = req.params.id;
-  con.query("SELECT questionType FROM SurveyQuestions WHERE qID = "+qID+" ", function(err,rows) {
-      if (err) throw err;
-      console.log('Data received from Db:\n');
-      console.log(rows);
-      res.json(rows)
-  });
-});
-
-app.get('/pull_survey_data_mc/:id', urlencodedParser, function(req, res){
-  console.log("Pulling survey results");
-  var qID = req.params.id;
-  con.query("SELECT  answerChoice, IF(c is not NULL, c, 0) as count " +
-            "FROM " +
-            "(SELECT response, count(response) AS c " +
-            "FROM SurveyResponses " +
-            "WHERE qID = "+qID+" " +
-            "GROUP BY response) AS A " +
-            "RIGHT JOIN " +
-            "(SELECT answerChoice " +
-            "FROM SurveyAnswers " +
-            "WHERE qID = "+qID+") AS B " +
-            "ON A.response = B.answerChoice " +
-            "GROUP BY B.answerChoice", function(err,rows) {
-      if (err) throw err;
-      console.log('Data received from Db:\n');
-      console.log(rows);
-      res.json(rows)
-  });
-});
-
-app.get('/pull_survey_data_fr/:id', urlencodedParser, function(req, res){
-  var qID = req.params.id;
-  con.query("SELECT response " +
-            "FROM SurveyResponses " +
-            "WHERE qID = "+qID+" AND response != ''", function(err,rows) {
-      if (err) throw err;
-      console.log('Data received from Db:\n');
-      console.log(rows);
-      res.json(rows)
-  });
-});
-
-
 // SUBMIT ====================================================================================================================================
 
 app.post('/submit_survey/:query',urlencodedParser,  function(req, res) {
@@ -784,28 +795,6 @@ app.post('/submit_survey/:query',urlencodedParser,  function(req, res) {
   });
 });
 
-
-app.post('/delete_survey',urlencodedParser,  function(req, res) {
-  console.log("Received survey response");
-  values = req.params.survey_select.value.split('##');
-  var id = values[0];
-  var question = values[1];
-  console.log(req.body);
-  var content = "New Survey: " + question;
-  var query = "delete from SurveyQuestions where qID = " + id + "; DELETE FROM Notifications where content = " + content + ";";
-  console.log(query);
-  con.query(query, function(err) {
-    if (err) {
-      console.log("Submit survey attempt failed.");
-      alerts.push({alert: "deleting survey failed, please try again.", type: "danger"});
-      res.redirect(req.get('referer'));
-    } else {
-      console.log("Delete survey success."); 
-      alerts.push({alert: "Deleted survey successfully!", type: "success"});
-      res.redirect(req.get('referer'));
-    }
-  };
-});
 
 app.post('/submit_post', urlencodedParser, function(req, res) {
   console.log("Received post response");
@@ -1142,4 +1131,48 @@ app.post('/submit_survey_question', urlencodedParser, function(req, res) {
     alerts.push({alert: "Creating survey failed, please try again.", type: "danger"});
   }
   res.sendFile(path.join(__dirname, './html/create-survey.html'));
+});
+
+// DELETE ====================================================================================================================================
+
+app.post('/delete_user', urlencodedParser, function(req, res) {
+  var delete_email = req.body.delete_email;
+  
+  var query = "DELETE from User WHERE email='" + delete_email + "';";
+  console.log(query);
+
+  con.query(query, function(err) {
+    if (err) {
+      console.log("Delete attempt failed");
+      alerts.push({alert: "Deleting user failed.", type: "danger"});
+      res.redirect(req.get('referer'));
+    } else {
+      console.log("Deleted user successfully");
+      alerts.push({alert: "Deleted user successfully!", type: "success"});
+      res.redirect(req.get('referer'));
+    }
+  });
+
+});
+
+app.post('/delete_survey',urlencodedParser,  function(req, res) {
+  console.log("Received survey response");
+  values = req.params.survey_select.value.split('##');
+  var id = values[0];
+  var question = values[1];
+  console.log(req.body);
+  var content = "New Survey: " + question;
+  var query = "delete from SurveyQuestions where qID = " + id + "; DELETE FROM Notifications where content = " + content + ";";
+  console.log(query);
+  con.query(query, function(err) {
+    if (err) {
+      console.log("Delete survey attempt failed.");
+      alerts.push({alert: "deleting survey failed, please try again.", type: "danger"});
+      res.redirect(req.get('referer'));
+    } else {
+      console.log("Delete survey success."); 
+      alerts.push({alert: "Deleted survey successfully!", type: "success"});
+      res.redirect(req.get('referer'));
+    }
+  });
 });

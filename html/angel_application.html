@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
-    <title>Garden Angels</title>
+    <title>Manage Accounts</title>
     <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:300,400,700">
     <link rel="stylesheet" href="assets/fonts/ionicons.min.css">
@@ -12,6 +12,7 @@
     <link rel="stylesheet" href="assets/css/Login-Form-Clean.css">
     <link rel="stylesheet" href="assets/css/Login-Form-Dark.css">
     <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
 
 <body>
@@ -29,7 +30,7 @@
                     <li class="nav-item" role="presentation"><form class="nav-link" action="/createsurvey" method="get"><button class="nav-link">Create Survey</button></form></li>
                     <li class="nav-item" role="presentation"><form class="nav-link" action="/checkin" method="get"><button class="nav-link">Check Ins</button></form></li>
                     <li class="nav-item" role="presentation"><form class="nav-link" action="/surveydata" method="get"><button class="nav-link">Survey Data</button></form></li>
-                    <li class="nav-item" role="presentation"><form class="nav-link" action="/angelapplication" method="get"><button class="nav-link">Garden Angels</button></form></li>
+                    <li class="nav-item" role="presentation"><form class="nav-link" action="/angelapplication" method="get"><button class="nav-link">Manage Accounts</button></form></li>
                     <li class="nav-item" role="presentation"><form class="nav-link" action="/logout" method="get"><button class="nav-link">Log Out</button></form></li>    
                 </ul>
             </div>
@@ -38,24 +39,25 @@
     <main class="page project-page">
         <section class="portfolio-block block-intro">
             <div class="heading">
-                <h2>Garden Angels</h2>
+                <h2>Manage Accounts</h2>
             </div>
             <div id="alerts"></div>
 
             <div class="about-me">
+                <h6><b>Pending Garden Angels</b></h6>
                 <div id='pending_angels'></div>
-                <div id="accepted_angels" style="margin: 100px auto"></div>
+                <div id="accepted_angels" style="margin: 50px auto"></div>
+                <div id="gardeners" style="margin: 50px auto"></div>
+                <div id="users" style="margin: 50px auto"></div>
             </div>
         </section>
     </main>
 
-    <footer class="wsite-multicol-col page-footer" style="background-color: cornflowerblue; box-shadow: 0 50vh 0 50vh cornflowerblue;">
-        <a href="http://www.historicwestsidegardens.org/">
-            <img src="assets/img/logo.png" alt="Picture" style="width:75px;max-width:100%">
-        </a>
-        
-        <div style="text-align:center;"></div>
+    <footer class="wsite-multicol-col page-footer" style="background-color: cornflowerblue; box-shadow: 0 50vh 0 50vh cornflowerblue;">       
         <span class="wsite-social wsite-social-default" style="padding-right: 8px;">
+            <a href="http://www.historicwestsidegardens.org/">
+                <img src="assets/img/logo.png" alt="Picture" style="width:75px;max-width:100%">
+            </a>
             <a class="first-child wsite-social-item wsite-social-facebook" href="https://www.facebook.com/historicwestsidegardens/?ref=br_rs" target="_blank" alt="Facebook">
                 <img src="assets/img/facebook.png" alt="Picture" style="width:58px; height: 58px;">
             </a>
@@ -77,38 +79,6 @@
     <script src="assets/js/theme.js"></script>
     <script>
         $(document).ready(function(){
-            $.get("/pull_accepted_angels", function(data, status){
-                var content = "";
-
-                content += "<div class=" + 'table-responsive'+ "> "+
-                                    "<table class=" +'table'+"> "+
-                                        "<thead> "+
-                                            "<tr> "+
-                                                "<th>Current Garden Angels</th> "+
-                                            "</tr> "+
-                                       "</thead> "+
-                                        "<tbody> ";
-
-                data.forEach((d) => {
-                    content += "<tr> "+
-                                "<td>"+d.Name+"</td> "+
-                                "</tr> ";
-
-                    console.log(d.Name);
-                    console.log(d.userStatus);
-                });
-
-                content += "</tbody> "+
-                            "</table> "+
-                            "</div>";
-
-                if (data.length == 0) {
-                    content += "<br><h5 class=\"no-result\">No users are currently garden angels</h5>";
-                }
-
-                document.getElementById('accepted_angels').innerHTML = content;
-            });
-
             $.get("/pull_pending_angels", function(data, status){
                 var content = "";
                 //create table
@@ -135,8 +105,6 @@
                                 "</div> "+
                             "</td> "+
                             "</tr>";
-                    console.log(d.Name);
-                    console.log(d.userStatus);
                 });
 
                 content += "</tbody> "+
@@ -145,10 +113,115 @@
                 //end table
 
                 if (data.length == 0) {
-                    content += "<br><h5 class=\"no-result\">No users are currently requesting to be a garden angel</h5>";
+                    content += "<br><h6 class=\"no-result\">No users are currently requesting to be a garden angel</h6>";
                 }
 
                 document.getElementById('pending_angels').innerHTML = content;
+            });
+
+            $.get("/pull_accepted_angels", function(data, status){
+                var content = "";
+
+                content += "<div class=" + 'table-responsive'+ "> "+
+                                    "<table class=" +'table'+"> "+
+                                        "<thead> "+
+                                            "<tr> "+
+                                                "<th>Garden Angels</th> "+
+                                                "<th>Delete</th> "+
+                                            "</tr> "+
+                                        "</thead> "+
+                                        "<tbody> ";
+
+                data.forEach((d) => {
+                    content +=  "<tr> "+
+                                    "<td>"+d.Name+"</td> "+
+                                    "<td>"+
+                                        "<form style=\"all:unset\" method='post' action=\"/delete_user/\">" +
+                                        "<button class='btn btn-primary' name='delete_email' value='"+d.email+"' type='submit' onclick=\"return confirm('This will permanently delete this garden angel. Are you sure you would like to delete?')\" ><i class=\"fa fa-trash\"></i></button> "+
+                                        "</form>" +
+                                    "</td> "+
+                                "</tr> ";
+                });
+
+                content += "</tbody> "+
+                            "</table> "+
+                            "</div>";
+
+                if (data.length == 0) {
+                    content += "<br><h6 class=\"no-result\">No users are currently garden angels</h6>";
+                }
+
+                document.getElementById('accepted_angels').innerHTML = content;
+            });
+
+            $.get("/pull_gardeners", function(data, status){
+                var content = "";
+
+                content += "<div class=" + 'table-responsive'+ "> "+
+                                    "<table class=" +'table'+"> "+
+                                        "<thead> "+
+                                            "<tr> "+
+                                                "<th>Gardeners</th> "+
+                                                "<th>Delete</th> "+
+                                            "</tr> "+
+                                        "</thead> "+
+                                        "<tbody> ";
+
+                data.forEach((d) => {
+                    content +=  "<tr> "+
+                                    "<td>"+d.firstName + " " + d.lastName+"</td> "+
+                                    "<td>"+
+                                        "<form style=\"all:unset\" method='post' action=\"/delete_user/\">" +
+                                        "<button class='btn btn-primary' name='delete_email' value='"+d.email+"' type='submit' onclick=\"return confirm('This will permanently delete this gardener. Are you sure you would like to delete?')\" ><i class=\"fa fa-trash\"></i></button> "+
+                                        "</form>" +
+                                    "</td> "+
+                                "</tr> ";
+                });
+
+                content += "</tbody> "+
+                            "</table> "+
+                            "</div>";
+
+                if (data.length == 0) {
+                    content += "<br><h6 class=\"no-result\">No users are currently gardeners</h6>";
+                }
+
+                document.getElementById('gardeners').innerHTML = content;
+            });
+
+            $.get("/pull_users", function(data, status){
+                var content = "";
+
+                content += "<div class=" + 'table-responsive'+ "> "+
+                                    "<table class=" +'table'+"> "+
+                                        "<thead> "+
+                                            "<tr> "+
+                                                "<th>Gardeners</th> "+
+                                                "<th>Delete</th> "+
+                                            "</tr> "+
+                                        "</thead> "+
+                                        "<tbody> ";
+
+                data.forEach((d) => {
+                    content +=  "<tr> "+
+                                    "<td>"+d.firstName + " " + d.lastName+"</td> "+
+                                    "<td>"+
+                                        "<form style=\"all:unset\" method='post' action=\"/delete_user/\">" +
+                                        "<button class='btn btn-primary' name='delete_email' value='"+d.email+"' type='submit' onclick=\"return confirm('This will permanently delete this user. Are you sure you would like to delete?')\" ><i class=\"fa fa-trash\"></i></button> "+
+                                        "</form>" +
+                                    "</td> "+
+                                "</tr> ";
+                });
+
+                content += "</tbody> "+
+                            "</table> "+
+                            "</div>";
+
+                if (data.length == 0) {
+                    content += "<br><h6 class=\"no-result\">No users are currently normal users</h6>";
+                }
+
+                document.getElementById('users').innerHTML = content;
             });
 
             $.get("/pull_alerts", function(data, status){

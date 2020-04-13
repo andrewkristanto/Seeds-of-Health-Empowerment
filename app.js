@@ -762,32 +762,6 @@ app.post('/submit_survey/:query',urlencodedParser,  function(req, res) {
   });
 });
 
-
-<<<<<<< Updated upstream
-=======
-app.post('/delete_survey',urlencodedParser,  function(req, res) {
-  console.log("Received survey response");
-  values = req.params.survey_select.value.split('##');
-  var id = values[0];
-  var question = values[1];
-  console.log(req.body);
-  var content = "New Survey: " + question;
-  var query = "delete from SurveyQuestions where qID = " + id + "; DELETE FROM Notifications where content = " + content + ";";
-  console.log(query);
-  con.query(query, function(err) {
-    if (err) {
-      console.log("Submit survey attempt failed.");
-      alerts.push({alert: "deleting survey failed, please try again.", type: "danger"});
-      res.redirect(req.get('referer'));
-    } else {
-      console.log("Delete survey success."); 
-      alerts.push({alert: "Deleted survey successfully!", type: "success"});
-      res.redirect(req.get('referer'));
-    }
-  });
-});
-
->>>>>>> Stashed changes
 app.post('/submit_post', urlencodedParser, function(req, res) {
   console.log("Received post response");
   var postText = req.body.postText;
@@ -1148,23 +1122,34 @@ app.post('/delete_user', urlencodedParser, function(req, res) {
 });
 
 app.post('/delete_survey',urlencodedParser,  function(req, res) {
-  console.log("Received survey response");
-  values = req.params.survey_select.value.split('##');
-  var id = values[0];
-  var question = values[1];
+  console.log("Received delete survey response");
+  var id = req.body.delete_id;
+  var question = req.body.delete_question;
   console.log(req.body);
   var content = "New Survey: " + question;
-  var query = "delete from SurveyQuestions where qID = " + id + "; DELETE FROM Notifications where content = " + content + ";";
+  var query = "DELETE FROM Notifications WHERE content = '" + content + "';";
   console.log(query);
   con.query(query, function(err) {
     if (err) {
       console.log("Delete survey attempt failed.");
-      alerts.push({alert: "deleting survey failed, please try again.", type: "danger"});
+      console.log(err)
+      alerts.push({alert: "Deleting survey failed, please try again.", type: "danger"});
       res.redirect(req.get('referer'));
     } else {
-      console.log("Delete survey success."); 
-      alerts.push({alert: "Deleted survey successfully!", type: "success"});
-      res.redirect(req.get('referer'));
+      query2 = "DELETE FROM SurveyQuestions where qID = " + id + ";"
+      console.log(query2);
+      con.query(query2, function(err){
+        if (err) {
+          console.log("Delete survey attempt failed.");
+          console.log(err)
+          alerts.push({alert: "Deleting survey failed, please try again.", type: "danger"});
+          res.redirect(req.get('referer'));
+        } else {
+          console.log("Delete survey success."); 
+          alerts.push({alert: "Deleted survey successfully!", type: "success"});
+          res.redirect(req.get('referer'));
+        }
+      });
     }
   });
 });

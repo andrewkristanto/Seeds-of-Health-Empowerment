@@ -42,6 +42,7 @@
                     <h2>View Survey Data</h2>
                 </div>
             </div>
+            <div id="alerts"></div>
             <div class="container" id='suvrey_dropdown'>
             
                 
@@ -64,6 +65,7 @@
             </div>
             <div>
                  <div id="chart_div" class="container" style="width:80%"></div>
+                 <br>
                  <div id="delete_button" class="container" style="width:80%"></div>
             </div>          
             <div class="container"></div>
@@ -110,6 +112,13 @@
                 content += "</select>";
                 document.getElementById('suvrey_dropdown').innerHTML = content;
             });
+
+            $.get("/pull_alerts", function(data, status){
+                var heading = $("#alerts");
+                data.forEach((d) => {
+                    heading.after("<div class=\"alert alert-" + d.type + "\" role=\"alert\" style=\"margin: 10px auto; width: 50%;\"><strong>" + d.alert + "</strong><span class=\"close\" onclick=\"this.parentElement.style.display='none';\">&times;</span></div>");
+                });
+            });
           });
     </script>
 
@@ -124,7 +133,7 @@
             $(document).ready(function(){
                 $.get("/pull_survey_question_type/" +id+ "", function(data, status){
                     var type = data[0].questionType;
-                    var del_but = "<form method=\"post\" action=\"delete_survey\"><button class=\"btn btn-primary\" type=\"submit\" style=\"width: 278px;height: 30px;margin-top: 10;padding: 0;font-size: 13;\">Delete this Survey</button></form>";
+                    var del_but = "<form method=\"post\" action=\"delete_survey\" style='all:unset'><input name='delete_id' value='"+id+"' style='display: none'></input><input name='delete_question' value='"+question+"' style='display: none'></input><button class=\"btn btn-primary\" type=\"submit\" style=\"width: 278px;height: 30px;margin-top: 10;padding: 0;font-size: 13;\">Delete this Survey</button></form>";
                         if (type == 'mc') {
                             google.charts.load('current', {packages: ['corechart', 'bar']});
                             google.charts.setOnLoadCallback(drawBasicGraph);

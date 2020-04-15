@@ -22,7 +22,6 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="nav navbar-nav ml-auto">
                     <li class="nav-item" role="presentation"><form class="nav-link" action="/home" method="get"><button class="nav-link">Home</button></form></li>
-                    <li class="nav-item" role="presentation"><form class="nav-link" action="/survey" method="get"><button class="nav-link">Survey</button></form></li>
                     <li class="nav-item" role="presentation"><form class="nav-link" action="/profile" method="get"><button class="nav-link">Profile</button></form></li>
                     <li class="nav-item" role="presentation"><form class="nav-link" action="/notifications" method="get"><button class="nav-link">Notifications</button></form></li>
                     <li class="nav-item" role="presentation"><form class="nav-link" action="/createsurvey" method="get"><button class="nav-link">Create Survey</button></form></li>
@@ -30,6 +29,13 @@
                     <li class="nav-item" role="presentation"><form class="nav-link" action="/surveydata" method="get"><button class="nav-link">Survey Data</button></form></li>
                     <li class="nav-item" role="presentation"><form class="nav-link" action="/angelapplication" method="get"><button class="nav-link">Manage Accounts</button></form></li>
                     <li class="nav-item" role="presentation"><form class="nav-link" action="/logout" method="get"><button class="nav-link">Log Out</button></form></li>        
+                    <li class="nav-item" role="presentation"><form class="nav-link" action="/settings" method="get"><button class="nav-link">Settings</button></form></li>
+                    <li class="nav-item" role="presentation"  style="display: none" id="survey_button"><form class="nav-link" action="/survey" method="get"><button class="nav-link">Survey</button></form></li>
+                    <li class="nav-item" role="presentation"  style="display: none" id="createsurvey_button"><form class="nav-link" action="/createsurvey" method="get"><button class="nav-link">Create Survey</button></form></li>
+                    <li class="nav-item" role="presentation"  style="display: none" id="createcheckin_button"><form class="nav-link" action="/checkin" method="get"><button class="nav-link">Create Check In</button></form></li>
+                    <li class="nav-item" role="presentation"  style="display: none" id="surveydata_button"><form class="nav-link" action="/surveydata" method="get"><button class="nav-link">Survey Data</button></form></li>
+                    <li class="nav-item" role="presentation"  style="display: none" id="gardenangel_button"><form class="nav-link" action="/angelapplication" method="get"><button class="nav-link">Garden Angels</button></form></li>
+                    <li class="nav-item" role="presentation"><form class="nav-link" action="/logout" method="get"><button class="nav-link">Log Out</button></form></li>
                 </ul>
             </div>
         </div>
@@ -63,7 +69,7 @@
         </section>
         <section class="portfolio-block block-intro">
             <div class="container">
-                <div class="heading">
+                <div class="heading" id="checkin_heading">
                     <h2>My Check Ins</h2>
                 </div>
                 <table class="table" id="checkinTable">
@@ -132,6 +138,38 @@
                     table.after("<tr><td>" + d.angel + "</td><td>" + d.gardener + "</td><td>" + formatDate(d.checkDate) + "</td><td>" + d.checkText + "</td></tr>");
                 });
             }); 
+        });
+    </script>
+
+    <script>
+        $(document).ready(function(){
+            $.get("/pull_profile", function(data, status){
+                data.forEach((d) => {
+                    if(d.role > 1){
+                        $("[id='createsurvey_button']").css({"display":"show"});
+                        $("[id='surveydata_button']").css({"display":"show"});
+                        $("[id='createcheckin_button']").css({"display":"show"});
+                        $("[id='gardenangel_button']").css({"display":"show"});
+                    }
+
+                    if(d.role > 0){
+                        $("[id='survey_button']").css({"display":"show"});
+                    }
+                });
+            });
+        });
+    </script>
+
+    <script>
+        $(document).ready(function(){
+            $.get("/pull_profile", function(data, status){
+                data.forEach((d) => {
+                    if(d.role < 1){
+                        $("[id='checkinTable']").css({"display":"none"});
+                        $("[id='checkin_heading']").css({"display":"none"});
+                    }
+                });
+            });
         });
     </script>
 </body>

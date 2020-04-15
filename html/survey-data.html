@@ -23,14 +23,9 @@
                 id="navbarNav">
                 <ul class="nav navbar-nav ml-auto">
                     <li class="nav-item" role="presentation"><form class="nav-link" action="/home" method="get"><button class="nav-link">Home</button></form></li>
-                    <li class="nav-item" role="presentation"><form class="nav-link" action="/survey" method="get"><button class="nav-link">Survey</button></form></li>
                     <li class="nav-item" role="presentation"><form class="nav-link" action="/profile" method="get"><button class="nav-link">Profile</button></form></li>
-                    <li class="nav-item" role="presentation"><form class="nav-link" action="/notifications" method="get"><button class="nav-link">Notifications</button></form></li>
-                    <li class="nav-item" role="presentation"><form class="nav-link" action="/createsurvey" method="get"><button class="nav-link">Create Survey</button></form></li>
-                    <li class="nav-item" role="presentation"><form class="nav-link" action="/checkin" method="get"><button class="nav-link">Check Ins</button></form></li>
-                    <li class="nav-item" role="presentation"><form class="nav-link" action="/surveydata" method="get"><button class="nav-link">Survey Data</button></form></li>
-                    <li class="nav-item" role="presentation"><form class="nav-link" action="/angelapplication" method="get"><button class="nav-link">Manage Accounts</button></form></li>
-                    <li class="nav-item" role="presentation"><form class="nav-link" action="/logout" method="get"><button class="nav-link">Log Out</button></form></li>    
+                    <li id="add_buttons" class="nav-item" role="presentation"><form class="nav-link" action="/notifications" method="get"><button class="nav-link">Notifications</button></form></li>
+                    <li class="nav-item" role="presentation"><form class="nav-link" action="/logout" method="get"><button class="nav-link">Log Out</button></form></li>     
                 </ul>
             </div>
         </div>
@@ -118,6 +113,30 @@
                 data.forEach((d) => {
                     heading.after("<div class=\"alert alert-" + d.type + "\" role=\"alert\" style=\"margin: 10px auto; width: 50%;\"><strong>" + d.alert + "</strong><span class=\"close\" onclick=\"this.parentElement.style.display='none';\">&times;</span></div>");
                 });
+            });
+
+            // for nav bar
+            $.get("/pull_profile", function(data, status){
+                var add_buttons = $("#add_buttons");
+                var buttons = ""
+                data.forEach((d) => {
+                    var role = (if d.role == 2 && d.userStatus == 'pending') ? 0 : d.role;
+
+                    if(role > 0){
+                        buttons += '<li class="nav-item" role="presentation"><form class="nav-link" action="/survey" method="get"><button class="nav-link">Surveys</button></form></li>'
+                    }
+
+                    if(role > 1){
+                        buttons += '<li class="nav-item" role="presentation"><form class="nav-link" action="/checkin" method="get"><button class="nav-link">Check Ins</button></form></li>'
+                    }
+
+                    if(role > 2){
+                        buttons += '<li class="nav-item" role="presentation"><form class="nav-link" action="/createsurvey" method="get"><button class="nav-link">Create Survey</button></form></li>'
+                        buttons += '<li class="nav-item" role="presentation"><form class="nav-link" action="/surveydata" method="get"><button class="nav-link">Survey Data</button></form></li>'
+                        buttons += '<li class="nav-item" role="presentation"><form class="nav-link" action="/angelapplication" method="get"><button class="nav-link">Manage Accounts</button></form></li>'
+                    }
+                });
+                add_buttons.after(buttons);
             });
           });
     </script>

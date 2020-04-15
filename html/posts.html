@@ -107,25 +107,27 @@
                 });
             });
 
-            // for nav bar
-            $.get("/pull_profile", function(data, status){
+            $.get("/pull_role", function(data, status){
                 var add_buttons = $("#add_buttons");
                 var buttons = ""
                 data.forEach((d) => {
-                    var role = (if d.role == 2 && d.userStatus == 'pending') ? 0 : d.role;
+                    var role = d.role;
+                    if (d.role == 2 && d.userStatus == 'pending'){
+                        role = 0;
+                    }
 
-                    if(role > 0){
-                        buttons += '<li class="nav-item" role="presentation"><form class="nav-link" action="/survey" method="get"><button class="nav-link">Surveys</button></form></li>'
+                    if(role > 0 && role < 3){
+                        buttons += '<li class="nav-item" role="presentation"><form class="nav-link" action="/survey" method="get"><button class="nav-link">Surveys</button></form></li>';
                     }
 
                     if(role > 1){
-                        buttons += '<li class="nav-item" role="presentation"><form class="nav-link" action="/checkin" method="get"><button class="nav-link">Check Ins</button></form></li>'
+                        buttons += '<li class="nav-item" role="presentation"><form class="nav-link" action="/checkin" method="get"><button class="nav-link">Check Ins</button></form></li>';
                     }
 
                     if(role > 2){
-                        buttons += '<li class="nav-item" role="presentation"><form class="nav-link" action="/createsurvey" method="get"><button class="nav-link">Create Survey</button></form></li>'
-                        buttons += '<li class="nav-item" role="presentation"><form class="nav-link" action="/surveydata" method="get"><button class="nav-link">Survey Data</button></form></li>'
-                        buttons += '<li class="nav-item" role="presentation"><form class="nav-link" action="/angelapplication" method="get"><button class="nav-link">Manage Accounts</button></form></li>'
+                        buttons += '<li class="nav-item" role="presentation"><form class="nav-link" action="/createsurvey" method="get"><button class="nav-link">Create Survey</button></form></li>';
+                        buttons += '<li class="nav-item" role="presentation"><form class="nav-link" action="/surveydata" method="get"><button class="nav-link">Survey Data</button></form></li>';
+                        buttons += '<li class="nav-item" role="presentation"><form class="nav-link" action="/angelapplication" method="get"><button class="nav-link">Manage Accounts</button></form></li>';
                     }
                 });
                 add_buttons.after(buttons);

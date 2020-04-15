@@ -151,20 +151,3 @@ CREATE TABLE NotificationSettings (
 			ON DELETE CASCADE
 			ON UPDATE CASCADE
 );
-
-CREATE TABLE PWChangeRequests (
-    ID VARCHAR(100) NOT NULL,
-    email INT NOT NULL AUTO_INCREMENT,
-    requestTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY (ID)
-	FOREIGN KEY (email)
-		REFERENCES User (email)
-			ON DELETE CASCADE
-			ON UPDATE CASCADE
-);
-
-DELIMITER //
-CREATE TRIGGER `pw_change_request_update_to_gmt-5` BEFORE INSERT ON `SurveyQuestions` FOR EACH ROW BEGIN
-set new.releaseDate=addtime(current_timestamp, '01:00:00');
-END//
-DELIMITER ;

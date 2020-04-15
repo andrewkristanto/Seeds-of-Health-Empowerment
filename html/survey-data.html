@@ -38,33 +38,16 @@
                 </div>
             </div>
             <div id="alerts"></div>
-            <div class="container" id='suvrey_dropdown'>
-            
-                
-            </div>
-
-            <div class="container" id='drop_down'>
-<!--                 <select id="test_dropdown" class="form-control" style="width: 30%; display: inline" onchange="test();">
-                <option disabled selected>Select Survey</option>
-                <option value="1">aaaa</option>
-                <option value="2">bbbbb</option>
-                </select> -->
-             </div> 
-
-
-
-
-            </div>
-            <div class="container" id="question">
-                <!-- <h4>Question:&nbsp; On a scale of 1 to 5, how would you rate your&nbsp; stress levels after starting your home garden?</h4> -->
-            </div>
+            <div class="container" id='survey_dropdown'></div>
+            <div class="container" id='drop_down'></div> 
+            <div class="container" id="question"></div>
+            <div class="container" id="date"></div>
             <div>
                  <div id="chart_div" class="container" style="width:80%"></div>
                  <br>
                  <div id="delete_button" class="container" style="width:80%"></div>
             </div>          
             <div class="container"></div>
-            <div id="test"></div>
 
 
         </section>
@@ -105,7 +88,7 @@
 
                 });
                 content += "</select>";
-                document.getElementById('suvrey_dropdown').innerHTML = content;
+                document.getElementById('survey_dropdown').innerHTML = content;
             });
 
             $.get("/pull_alerts", function(data, status){
@@ -115,25 +98,27 @@
                 });
             });
 
-            // for nav bar
-            $.get("/pull_profile", function(data, status){
+            $.get("/pull_role", function(data, status){
                 var add_buttons = $("#add_buttons");
                 var buttons = ""
                 data.forEach((d) => {
-                    var role = (if d.role == 2 && d.userStatus == 'pending') ? 0 : d.role;
+                    var role = d.role;
+                    if (d.role == 2 && d.userStatus == 'pending'){
+                        role = 0;
+                    }
 
-                    if(role > 0){
-                        buttons += '<li class="nav-item" role="presentation"><form class="nav-link" action="/survey" method="get"><button class="nav-link">Surveys</button></form></li>'
+                    if(role > 0 && role < 3){
+                        buttons += '<li class="nav-item" role="presentation"><form class="nav-link" action="/survey" method="get"><button class="nav-link">Surveys</button></form></li>';
                     }
 
                     if(role > 1){
-                        buttons += '<li class="nav-item" role="presentation"><form class="nav-link" action="/checkin" method="get"><button class="nav-link">Check Ins</button></form></li>'
+                        buttons += '<li class="nav-item" role="presentation"><form class="nav-link" action="/checkin" method="get"><button class="nav-link">Check Ins</button></form></li>';
                     }
 
                     if(role > 2){
-                        buttons += '<li class="nav-item" role="presentation"><form class="nav-link" action="/createsurvey" method="get"><button class="nav-link">Create Survey</button></form></li>'
-                        buttons += '<li class="nav-item" role="presentation"><form class="nav-link" action="/surveydata" method="get"><button class="nav-link">Survey Data</button></form></li>'
-                        buttons += '<li class="nav-item" role="presentation"><form class="nav-link" action="/angelapplication" method="get"><button class="nav-link">Manage Accounts</button></form></li>'
+                        buttons += '<li class="nav-item" role="presentation"><form class="nav-link" action="/createsurvey" method="get"><button class="nav-link">Create Survey</button></form></li>';
+                        buttons += '<li class="nav-item" role="presentation"><form class="nav-link" action="/surveydata" method="get"><button class="nav-link">Survey Data</button></form></li>';
+                        buttons += '<li class="nav-item" role="presentation"><form class="nav-link" action="/angelapplication" method="get"><button class="nav-link">Manage Accounts</button></form></li>';
                     }
                 });
                 add_buttons.after(buttons);
@@ -143,7 +128,7 @@
 
     <script type="text/javascript">
         function contentLoader(){
-            values = document.getElementById('survey_select').value.split('##');
+            var values = document.getElementById('survey_select').value.split('##');
             var id = values[0];
             var question = values[1];
 
@@ -152,34 +137,33 @@
             $(document).ready(function(){
                 $.get("/pull_survey_question_type/" +id+ "", function(data, status){
                     var type = data[0].questionType;
-                    var del_but = "<form method=\"post\" action=\"delete_survey\" style='all:unset'><input name='delete_id' value='"+id+"' style='display: none'></input><input name='delete_question' value='"+question+"' style='display: none'></input><button class=\"btn btn-primary\" type=\"submit\" style=\"width: 278px;height: 30px;margin-top: 10;padding: 0;font-size: 13;\">Delete this Survey</button></form>";
-                        if (type == 'mc') {
-                            google.charts.load('current', {packages: ['corechart', 'bar']});
-                            google.charts.setOnLoadCallback(drawBasicGraph);
-                            document.getElementById('delete_button').innerHTML = del_but;
-                        } else if (type == 'fr') {
-                            $(document).ready(function(){
-                                $.get("/pull_survey_data_fr/" +id+ "", function(data, status){
-                                    var content = "";
-                                    if (data[0] == null) {
-                                        content += "<h5 class=\"no-result\">No survey results for this question at this time.</h5>";
-                                    } else {
-                                        content += "<div class=\"fr-response\">";
-                                        var count = 1;
-                                        data.forEach((d) => {
-                                            content += "<h5>" +count+ ". " +  d.response + "</h5>";
-                                            count++;
-                                        });
-                                    }
-                                document.getElementById('question').innerHTML = "<h4>Question: "+question+"</h4>";
-                                content += "</div>";
-                                document.getElementById('chart_div').innerHTML = content;
-                                document.getElementById('delete_button').innerHTML = del_but;
-                                });
+                    if (type == 'mc') {
+                        google.charts.load('current', {packages: ['corechart', 'bar']});
+                        google.charts.setOnLoadCallback(drawBasicGraph);
+                    } else if (type == 'fr') {
+                        $(document).ready(function(){
+                            $.get("/pull_survey_data_fr/" +id+ "", function(data, status){
+                                var content = "";
+                                if (data[0] == null) {
+                                    content += "<br><h5 class=\"no-result\">No survey results for this question at this time.</h5>";
+                                } else {
+                                    content += "<div class=\"fr-response\">";
+                                    var count = 1;
+                                    data.forEach((d) => {
+                                        content += "<h5>" +count+ ". " +  d.response + "</h5>";
+                                        count++;
+                                    });
+                                }
+                            document.getElementById('question').innerHTML = "<h4>Question: "+question+"</h4>";
+                            content += "</div>";
+                            document.getElementById('chart_div').innerHTML = content;
                             });
-
-                            
-                        }
+                        });  
+                    }
+                    var date = formatDate(data[0].releaseDate);
+                    document.getElementById('date').innerHTML = "<h5>"+date+"</h5>";
+                    var del_but = "<form method=\"post\" action=\"delete_survey\" style='all:unset'><input name='delete_id' value='"+id+"' style='display: none'></input><input name='delete_question' value='"+question+"' style='display: none'></input><button class=\"btn btn-primary\" type=\"submit\" style=\"width: 278px;height: 30px;margin-top: 10;padding: 0;font-size: 13;\">Delete this Survey</button></form>";
+                    document.getElementById('delete_button').innerHTML = del_but;
                 });
             });
 
@@ -216,7 +200,7 @@
                         document.getElementById('question').innerHTML = "<h4>Question: "+question+"</h4>";
 
                         if (allZero) {
-                            document.getElementById('chart_div').innerHTML = "<h5 class=\"no-result\">No survey results for this question at this time.</h5>";
+                            document.getElementById('chart_div').innerHTML = "<br><h5 class=\"no-result\">No survey results for this question at this time.</h5>";
                         } else{
                             document.getElementById('chart_div').innerHTML = "";
                             var chart = new google.visualization.ColumnChart(document.getElementById('chart_div'));

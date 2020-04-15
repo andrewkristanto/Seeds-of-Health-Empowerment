@@ -121,38 +121,15 @@ app.post('/',urlencodedParser,  function(req, res) {
   var password = req.body.password;
   console.log("post received: Username: %s Password: %s", email, password);
 
-  var query4 = "SELECT email FROM User;";
-  con.query(query4, function(err, rows) {
-    if (err) {
-      console.log("Failed to pull emails from database.")
-      console.log(err);
-      res.redirect(req.get('referer'));
-    } else {
-      console.log('Data received from Db:\n');
-      console.log(rows);
-
-      var check = false;
-
-      rows.forEach((d) => {
-        if (d.email.toLowerCase() == email.toLowerCase()) {
-          check = true;
-        }
-      });
-
-      if (!check) {
-        alerts.push({alert: "Invalid username.", type: "danger"});
-      }
-    }
-  });
-
   //checks login against database
   var request = "SELECT email, password, role FROM User WHERE email = '" + email + "'";
   con.query(request, function (err, result) {
     if (err){
       res.redirect(req.get('referer'));
     }
-    if (alerts.length != 0){
+    if (!result){
       console.log("Invalid username");
+      alerts.push({alert: "Invalid username.", type: "danger"});
       res.redirect(req.get('referer'));
     } else {
       var pw_hash = result[0]["password"];
@@ -310,6 +287,16 @@ app.get('/pull_profile',urlencodedParser,  function(req, res) {
   });
 });
 
+app.get('/pull_role',urlencodedParser,  function(req, res) {
+  console.log("Pulling nav bar.");
+  con.query("SELECT role, userStatus FROM User WHERE email = '" + cur_user + "';", function(err,rows) {
+      if (err) throw err;
+      console.log('Data received from Db:\n');
+      console.log(rows);
+      res.json(rows);
+  });
+});
+
 app.get('/pull_profile_checkin',urlencodedParser,  function(req, res) {
   console.log("Arrived on profile page.");
   con.query("SELECT * FROM User WHERE Email = '" + check_filter + "';", function(err,rows) {
@@ -443,6 +430,7 @@ app.get('/pull_accepted_angels', urlencodedParser, function(req, res){
 
 app.get('/pull_settings',urlencodedParser,  function(req, res) {
   console.log("Arrived on settings page.");
+  console.log("TESTING\n\n\n\n\n")
   con.query("SELECT * FROM NotificationSettings WHERE email = '" + cur_user + "';", function(err,rows) {
       if (err) throw err;
       console.log('Data received from Db:\n');
@@ -465,7 +453,7 @@ app.get('/pull_survey_question', urlencodedParser, function(req, res){
 app.get('/pull_survey_question_type/:id', urlencodedParser, function(req, res){
   console.log("Pulling all survey questions");
   var qID = req.params.id;
-  con.query("SELECT questionType FROM SurveyQuestions WHERE qID = "+qID+" ", function(err,rows) {
+  con.query("SELECT questionType, releaseDate FROM SurveyQuestions WHERE qID = "+qID+" ", function(err,rows) {
       if (err) throw err;
       console.log('Data received from Db:\n');
       console.log(rows);

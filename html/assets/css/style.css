@@ -69,4 +69,9 @@ ul{
 .trashbutton {
   border: none;
   padding: 2px;
+  background-color: white;
+}
+
+.oneline {
+  display: inline-block;
 }

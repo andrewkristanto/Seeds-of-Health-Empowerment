@@ -132,7 +132,7 @@
                                     "<td>"+d.Name+"</td> "+
                                     "<td>"+
                                         "<form style=\"all:unset\" method='post' action=\"/delete_user/\">" +
-                                        "<button class='btn btn-primary' name='delete_email' value='"+d.email+"' type='submit' onclick=\"return confirm('This will permanently delete this garden angel. Are you sure you would like to delete?')\" ><i class=\"fa fa-trash\"></i></button> "+
+                                        "<button class='trashbutton' name='delete_email' value='"+d.email+"' type='submit' onclick=\"return confirm('This will permanently delete this garden angel. Are you sure you would like to delete?')\" ><i style=\"font-size:24px\" class=\"fa\">&#xf014;</i></button> "+
                                         "</form>" +
                                     "</td> "+
                                 "</tr> ";
@@ -167,7 +167,7 @@
                                     "<td>"+d.firstName + " " + d.lastName+"</td> "+
                                     "<td>"+
                                         "<form style=\"all:unset\" method='post' action=\"/delete_user/\">" +
-                                        "<button class='btn btn-primary' name='delete_email' value='"+d.email+"' type='submit' onclick=\"return confirm('This will permanently delete this gardener. Are you sure you would like to delete?')\" ><i class=\"fa fa-trash\"></i></button> "+
+                                        "<button class='trashbutton' name='delete_email' value='"+d.email+"' type='submit' onclick=\"return confirm('This will permanently delete this gardener. Are you sure you would like to delete?')\" ><i style=\"font-size:24px\" class=\"fa\">&#xf014;</i></button> "+
                                         "</form>" +
                                     "</td> "+
                                 "</tr> ";
@@ -191,7 +191,7 @@
                                     "<table class=" +'table'+"> "+
                                         "<thead> "+
                                             "<tr> "+
-                                                "<th>Gardeners</th> "+
+                                                "<th>Users</th> "+
                                                 "<th>Delete</th> "+
                                             "</tr> "+
                                         "</thead> "+
@@ -202,7 +202,7 @@
                                     "<td>"+d.firstName + " " + d.lastName+"</td> "+
                                     "<td>"+
                                         "<form style=\"all:unset\" method='post' action=\"/delete_user/\">" +
-                                        "<button class='btn btn-primary' name='delete_email' value='"+d.email+"' type='submit' onclick=\"return confirm('This will permanently delete this user. Are you sure you would like to delete?')\" ><i class=\"fa fa-trash\"></i></button> "+
+                                        "<button class='trashbutton' name='delete_email' value='"+d.email+"' type='submit' onclick=\"return confirm('This will permanently delete this user. Are you sure you would like to delete?')\" ><i style=\"font-size:24px\" class=\"fa\">&#xf014;</i></button> "+
                                         "</form>" +
                                     "</td> "+
                                 "</tr> ";

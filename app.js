@@ -1153,8 +1153,10 @@ app.post('/delete_comment', urlencodedParser, function(req, res){
     if (err) {
       console.log(err)
       console.log("Error Deleting Comment");
+      alerts.push({alert: "Deleting comment failed, please try again.", type: "danger"});
     } else {
-      console.log("Successfully Deleted Comment"); 
+      console.log("Successfully Deleted Comment");
+      alerts.push({alert: "Deleted comment successfully!", type: "success"}); 
     }
   });
 
@@ -1172,8 +1174,10 @@ app.post('/delete_post', urlencodedParser, function(req, res){
     if (err) {
       console.log(err)
       console.log("Error Deleting Post");
+      alerts.push({alert: "Deleting post failed, please try again.", type: "danger"});
     } else {
-      console.log("Successfully Deleted Post"); 
+      console.log("Successfully Deleted Post");
+      alerts.push({alert: "Deleted post successfully!", type: "success"}); 
     }
   });
   res.sendFile(path.join(__dirname, './html/home.html'));

@@ -31,17 +31,14 @@
     </nav>
     <main class="page cv-page">
         <section class="portfolio-block block-intro" style="padding: 32px;padding-top: 70px;padding-bottom: 40px;">
-            <div class="container" style="background-color: #ffffff;padding: 0px 20px;padding-right: 1px;">
-                
-                    <form method="post" action="/submit_post">
-                        <div class="heading" id="create">
-                            <h2 class="text-center">Create a Post</h2>
-                        </div>
-                        <textarea name="postText" style="height: 100px;"class="form-control" placeholder="Write something...." required></textarea>
-                        <button class="btn btn-outline-primary" type="submit" style="padding-top: 6px;margin-top: 30px;">Post</button>
-                    </form>
-                
-            </div>
+                <div id="alerts"></div>
+                <form method="post" action="/submit_post">
+                    <div class="heading" id="create">
+                        <h2 class="text-center">Create a Post</h2>
+                    </div>
+                    <textarea name="postText" style="height: 100px;"class="form-control" placeholder="Write something...." required></textarea>
+                    <button class="btn btn-outline-primary" type="submit" style="padding-top: 6px;margin-top: 30px;">Post</button>
+                </form>
         </section>
         <section class="portfolio-block cv">
             <div class="container">
@@ -114,7 +111,7 @@
                             heading.after(content);
                         });
                         if (data.length == 0) {
-                            heading.after("<br><h5 class=\"no-result\">No posts</h5>");
+                            heading.after("<br><h4 class=\"no-result\"><center>No posts yet</center></h4>");
                         }
                     //Angel or Admin
                     } else if (role == 2 || role == 3) {
@@ -137,9 +134,9 @@
             });
 
             $.get("/pull_alerts", function(data, status){
-                var heading = $("#create");
+                var header = $("#alerts");
                 data.forEach((d) => {
-                    heading.after("<div class=\"alert alert-" + d.type + "\" role=\"alert\"><strong>" + d.alert + "</strong><span class=\"close\" onclick=\"this.parentElement.style.display='none';\">&times;</span></div>");
+                    header.after("<div class=\"alert alert-" + d.type + "\" role=\"alert\" style=\"margin: 10px auto; width: 50%;\"><strong>" + d.alert + "</strong><span class=\"close\" onclick=\"this.parentElement.style.display='none';\">&times;</span></div>");
                 });
             });
 

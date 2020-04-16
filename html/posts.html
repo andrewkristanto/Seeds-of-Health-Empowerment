@@ -32,6 +32,7 @@
     <main class="page cv-page">
         <section class="portfolio-block cv">
             <div class="container">
+                <div id="alerts"></div>
                 <div class="work-experience group">
                     <div class="item">
                         <div class="row">
@@ -44,16 +45,10 @@
                         </div>
                         <p class="text-muted"><h5 id="postText"></h5></p>
                     </div>
-                    <div id="comments" class="row">
+                    <div id="comments">
                         <form action="/submit_comment" method="post" style="all: unset">
-                            <div class="row">
-                                <div class="col-md-6 d-md-flex d-lg-flex justify-content-md-start align-items-md-center justify-content-lg-start align-items-lg-center">
-                                    <input name="commentText" type="text" placeholder="Write a comment" style="">
-                                </div>
-                                <div class="col-md-6 d-md-flex d-lg-flex justify-content-md-start align-items-md-center justify-content-lg-start align-items-lg-center">
-                                    <button class="btn btn-outline-primary" type="submit" style="margin-left: 30px;">Post</button>
-                                </div>
-                            </div>
+                                <input name="commentText" type="text" placeholder="Write a comment" style="width: 70%;">
+                                <button class="btn btn-outline-primary" type="submit" style="margin-left: 5px;">Post</button>
                         </form>
                     </div>
                 </div>
@@ -147,9 +142,9 @@
                 });
             });
             $.get("/pull_alerts", function(data, status){
-                var heading = $("#create");
+                var header = $("#alerts");
                 data.forEach((d) => {
-                    heading.after("<div class=\"alert alert-" + d.type + "\" role=\"alert\"><strong>" + d.alert + "</strong><span class=\"close\" onclick=\"this.parentElement.style.display='none';\">&times;</span></div>");
+                    header.after("<div class=\"alert alert-" + d.type + "\" role=\"alert\" style=\"margin: 10px auto; width: 50%;\"><strong>" + d.alert + "</strong><span class=\"close\" onclick=\"this.parentElement.style.display='none';\">&times;</span></div>");
                 });
             });
 

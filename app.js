@@ -372,7 +372,7 @@ app.get('/pull_gardeners_angels', urlencodedParser, function(req, res){
 
 app.get('/pull_posts', urlencodedParser, function(req, res){
   console.log("Arrived on home page.");
-  con.query("SELECT User.firstName, User.lastName, Posts.postId, Posts.postDate, Posts.postText " +
+  con.query("SELECT User.firstName, User.lastName, Posts.postId, Posts.postDate, Posts.postText, Posts.email " +
             "FROM Posts " +
             "LEFT JOIN User on Posts.email = User.email " + 
             "ORDER BY Posts.postDate ASC;" , function(err,rows) {
@@ -385,7 +385,7 @@ app.get('/pull_posts', urlencodedParser, function(req, res){
 
 app.get('/pull_comments', urlencodedParser, function(req, res){
   console.log("Arrived on posts page.");
-  var query = "SELECT pUser.firstName as postFName, pUser.lastName as postLName, Posts.postId, Posts.postDate, Posts.postText, cUser.firstName as commentFName, cUser.lastName as commentLName, Comments.commentText, Comments.commentDate " +
+  var query = "SELECT pUser.firstName as postFName, pUser.lastName as postLName, Posts.postId, Posts.postDate, Posts.postText, cUser.firstName as commentFName, cUser.lastName as commentLName, Comments.commentText, Comments.commentDate, Comments.commentId, Comments.email " +
               "FROM Posts " +
               "LEFT JOIN Comments on Posts.postId = Comments.postId " +
               "LEFT JOIN User pUser on Posts.email = pUser.email " +
@@ -1139,5 +1139,52 @@ app.post('/delete_survey',urlencodedParser,  function(req, res) {
         }
       });
     }
+  });
+});
+
+app.post('/delete_comment', urlencodedParser, function(req, res){
+  console.log("Deleting comment");
+  var id = req.body.commentId;
+
+  var query = "DELETE FROM Comments WHERE commentId = "+id+"";
+  console.log(query);
+
+  con.query(query, function(err) {
+    if (err) {
+      console.log(err)
+      console.log("Error Deleting Comment");
+    } else {
+      console.log("Successfully Deleted Comment"); 
+    }
+  });
+
+  res.sendFile(path.join(__dirname, './html/posts.html'));
+});
+
+app.post('/delete_post', urlencodedParser, function(req, res){
+  console.log("Deleting post");
+  var id = req.body.postId;
+
+  var query = "DELETE FROM Posts WHERE postId = "+id+"";
+  console.log(query);
+
+  con.query(query, function(err) {
+    if (err) {
+      console.log(err)
+      console.log("Error Deleting Post");
+    } else {
+      console.log("Successfully Deleted Post"); 
+    }
+  });
+  res.sendFile(path.join(__dirname, './html/home.html'));
+});
+
+app.get('/pull_user_role_status', urlencodedParser, function(req, res){
+  console.log("Pulling user role/status");
+  con.query("SELECT email, role, userStatus FROM User WHERE email = '"+cur_user+"'", function(err,rows) {
+      if (err) throw err;
+      console.log('Data received from Db:\n');
+      console.log(rows);
+      res.json(rows)
   });
 });

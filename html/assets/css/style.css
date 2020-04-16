@@ -65,3 +65,8 @@ ul{
   box-shadow: unset;
   padding: unset;
 }
+
+.trashbutton {
+  border: none;
+  padding: 2px;
+}

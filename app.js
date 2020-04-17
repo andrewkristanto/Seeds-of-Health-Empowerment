@@ -127,7 +127,7 @@ app.post('/',urlencodedParser,  function(req, res) {
     if (err){
       res.redirect(req.get('referer'));
     }
-    if (!result){
+    if (result.length == 0){
       console.log("Invalid username");
       alerts.push({alert: "Invalid username.", type: "danger"});
       res.redirect(req.get('referer'));

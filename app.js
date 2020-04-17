@@ -115,6 +115,75 @@ app.post('/view_check_ins', urlencodedParser, function(req, res){
   res.sendFile(path.join(__dirname,'./html/check-in-table.html'));
 });
 
+app.post('/forgot_password', urlencodedParser, function(req, res) {
+  var email = req.body.email;
+
+  //checks email against database
+  var request = "SELECT email FROM User WHERE email = '" + email + "'";
+  con.query(request, function (err, result) {
+    if (err){
+      res.redirect(req.get('referer'));
+    }
+    if (result.length == 0){
+      console.log("Invalid username");
+      alerts.push({alert: "Invalid email address.", type: "danger"});
+      res.redirect(req.get('referer'));
+    } else {
+      var email2 = result[0]["email"];
+      var generator = require('generate-password'); 
+      var tempPass = generator.generate({
+          length: 12,
+          numbers: true
+      }); 
+
+      console.log(tempPass);
+
+      bcrypt.hash(tempPass, 10, function(err, hash) {
+        var query = "UPDATE User SET password='" + hash + "' WHERE email='" + email2 + "';";
+        console.log(query);
+        con.query(query, function(err) {
+          if (err) {
+            console.log("Update password attempt failed");
+            alerts.push({alert: "Failed to reset password, please try again.", type: "danger"});
+            res.redirect(req.get('referer'));
+          } else {
+            //send an email containing temporary password to user
+            var nodemailer = require('nodemailer');
+
+            var transporter = nodemailer.createTransport({
+              service: 'gmail',
+              auth: {
+                user: 'historicwestsidegardenstest@gmail.com',
+                pass: 'testing12345!'
+              }
+            });
+
+            var message = 'We have temporarily changed your password to ' + tempPass + '. Please login with it and update your password.';
+
+            var mailOptions = {
+              from: 'historicwestsidegardenstest@gmail.com',
+              to: email,
+              subject: 'Reset Password',
+              text: message
+            };
+
+            transporter.sendMail(mailOptions, function(error, info){
+              if (error) {
+                console.log(error);
+              } else {
+                console.log('Email sent: ' + info.response);
+              }
+            });
+            console.log("Reset password success");
+            alerts.push({alert: "Reset password successfully! Check your email.", type: "success"});
+            res.sendFile(path.join(__dirname,'./html/login.html'));
+          }
+        });
+      });
+    }
+  });
+});
+
 // LOGIN =========================================================================================================================
 app.post('/',urlencodedParser,  function(req, res) {
   var email = req.body.email;
@@ -125,12 +194,12 @@ app.post('/',urlencodedParser,  function(req, res) {
   var request = "SELECT email, password, role FROM User WHERE email = '" + email + "'";
   con.query(request, function (err, result) {
     if (err){
-      res.redirect(req.get('referer'));
+      res.sendFile(path.join(__dirname,'./html/login.html'));
     }
     if (result.length == 0){
       console.log("Invalid username");
       alerts.push({alert: "Invalid username.", type: "danger"});
-      res.redirect(req.get('referer'));
+      res.sendFile(path.join(__dirname,'./html/login.html'));
     } else {
       var pw_hash = result[0]["password"];
       var email = result[0]["email"];
@@ -145,7 +214,7 @@ app.post('/',urlencodedParser,  function(req, res) {
         } else {
           console.log("Invalid password");
           alerts.push({alert: "Invalid password.", type: "danger"});
-          res.redirect(req.get('referer'));
+          res.sendFile(path.join(__dirname,'./html/login.html'));
         }
       });
     }

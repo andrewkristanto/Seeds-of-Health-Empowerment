@@ -809,6 +809,7 @@ app.post('/submit_survey/:query',urlencodedParser,  function(req, res) {
   con.query(query, function(err) {
     if (err) {
       console.log("Submit survey attempt failed.");
+      console.log(err);
       alerts.push({alert: "Submitting survey failed, please try again.", type: "danger"});
       res.redirect(req.get('referer'));
     } else {

@@ -111,7 +111,7 @@
 
             $.get("/pull_settings", function(data, status){
                 data.forEach((d) => {
-                    document.getElementById('cur_setting').value = d.toggle;
+                    document.getElementById('cur_setting').innerHTML = d.toggle;
                 });
             });
 

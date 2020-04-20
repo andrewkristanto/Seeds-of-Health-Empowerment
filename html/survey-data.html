@@ -84,7 +84,7 @@
                 console.log(data);
                 var content = "<select id=\"survey_select\" class=\"form-control\" style=\"width: 30%; display: inline; margin-bottom: 5%;\" onchange=\"contentLoader();\"><option disabled selected>Select Survey</option>";
                 data.forEach((d) => {
-                    content += "<option value=\"" +d.qID+ "##" +d.question+ "\">"+ d.qID+ " - "+d.question+"</option>"
+                    content += "<option value=\"" +d.qID+ "##" +d.question+ "\">"+ formatShortDate(d.releaseDate)+ " - "+d.question+"</option>"
 
                 });
                 content += "</select>";

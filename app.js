@@ -41,12 +41,6 @@ while (con == null){
     database: process.env.DB_DATABASE
   });
   console.log("MySQL Connected!");
-  // con.connect(function(err) {
-  //   if (err) {
-  //     return null
-  //   }
-  //   console.log("MySQL Connected!");
-  // });
 }
 
 //starts app
@@ -116,7 +110,7 @@ app.post('/view_check_ins', urlencodedParser, function(req, res){
 });
 
 app.post('/forgot_password', urlencodedParser, function(req, res) {
-  var email = req.body.email;
+  var email = sqlProtect(req.body.email);
 
   //checks email against database
   var request = "SELECT email FROM User WHERE email = '" + email + "'";
@@ -186,8 +180,8 @@ app.post('/forgot_password', urlencodedParser, function(req, res) {
 
 // LOGIN =========================================================================================================================
 app.post('/',urlencodedParser,  function(req, res) {
-  var email = req.body.email;
-  var password = req.body.password;
+  var email = sqlProtect(req.body.email);
+  var password = sqlProtect(req.body.password);
   console.log("post received: Username: %s Password: %s", email, password);
 
   //checks login against database
@@ -223,16 +217,16 @@ app.post('/',urlencodedParser,  function(req, res) {
 
 // REGISTER ===========================================================================================================================================================
 app.post('/register',urlencodedParser,  function(req, res) {
-  var fname = req.body.fname;
-  var lname = req.body.lname;
-  var email = req.body.email;
-  var street = req.body.street;
-  var city = req.body.city;
+  var fname = sqlProtect(req.body.fname);
+  var lname = sqlProtect(req.body.lname);
+  var email = sqlProtect(req.body.email);
+  var street = sqlProtect(req.body.street);
+  var city = sqlProtect(req.body.city);
   var state = req.body.state;
-  var zip = req.body.zip;
-  var phone = req.body.phone;
-  var password = req.body.pass;
-  var confirmpass = req.body.confirmpass;
+  var zip = sqlProtect(req.body.zip);
+  var phone = sqlProtect(req.body.phone);
+  var password = sqlProtect(req.body.pass);
+  var confirmpass = sqlProtect(req.body.confirmpass);
   var role = req.body.role;
   console.log(req.body);
 
@@ -498,8 +492,6 @@ app.get('/pull_accepted_angels', urlencodedParser, function(req, res){
 });
 
 app.get('/pull_settings',urlencodedParser,  function(req, res) {
-  console.log("Arrived on settings page.");
-  console.log("TESTING\n\n\n\n\n")
   con.query("SELECT * FROM NotificationSettings WHERE email = '" + cur_user + "';", function(err,rows) {
       if (err) throw err;
       console.log('Data received from Db:\n');
@@ -610,7 +602,7 @@ app.get('/pull_check_ins', urlencodedParser, function(req, res){
 
 app.get('/pull_survey_question', urlencodedParser, function(req, res){
   console.log("Pulling all survey questions");
-  con.query("SELECT question, qID FROM SurveyQuestions", function(err,rows) {
+  con.query("SELECT qID, question FROM SurveyQuestions ORDER BY qID DESC", function(err,rows) {
       if (err) throw err;
       console.log('Data received from Db:\n');
       console.log(rows);
@@ -665,13 +657,13 @@ app.get('/pull_survey_data_fr/:id', urlencodedParser, function(req, res){
 
 // UPDATE ======================================================================================================================
 app.post('/update_profile',urlencodedParser,  function(req, res) {
-  var fname = req.body.fname;
-  var lname = req.body.lname;
-  var street = req.body.street;
-  var city = req.body.city;
+  var fname = sqlProtect(req.body.fname);
+  var lname = sqlProtect(req.body.lname);
+  var street = sqlProtect(req.body.street);
+  var city = sqlProtect(req.body.city);
   var state = req.body.state;
-  var zip = req.body.zip;
-  var phone = req.body.phone;
+  var zip = sqlProtect(req.body.zip);
+  var phone = sqlProtect(req.body.phone);
   
   var query = "UPDATE User SET firstName='" + fname + "', lastName='" + lname + "', street='" + street + "', city='" + city +
   "', state='" + state + "', zipcode='" + zip + "', phoneNumber='" + phone + "' WHERE email='" + cur_user + "';";
@@ -691,9 +683,9 @@ app.post('/update_profile',urlencodedParser,  function(req, res) {
 });
 
 app.post('/update_password',urlencodedParser,  function(req, res) {
-  var currPass = req.body.currPass;
-  var newPass = req.body.newPass;
-  var newPass2 = req.body.newPass2;
+  var currPass = sqlProtect(req.body.currPass);
+  var newPass = sqlProtect(req.body.newPass);
+  var newPass2 = sqlProtect(req.body.newPass2);
   console.log(req.body);
 
   var valid = true;
@@ -800,7 +792,7 @@ app.post('/update_angels/:query', urlencodedParser, function(req, res){
 app.post('/submit_survey/:query',urlencodedParser,  function(req, res) {
   console.log("Received survey response");
   var qID = req.params.query;
-  var response = req.body[qID];
+  var response = sqlProtect(req.body[qID]);
   console.log(req.body);
 
   var query = "UPDATE SurveyResponses SET response='" + response + "' WHERE email='" + cur_user + "' and qID=" + qID + ";";
@@ -822,8 +814,7 @@ app.post('/submit_survey/:query',urlencodedParser,  function(req, res) {
 
 app.post('/submit_post', urlencodedParser, function(req, res) {
   console.log("Received post response");
-  var postText = req.body.postText;
-
+  var postText = sqlProtect(req.body.postText);
   if (postText.length > 0) {
     var query = "INSERT INTO Posts (email, role, postText) VALUES ('" + cur_user + "', '" + cur_role + "', '" + postText + "');";
     console.log(query);
@@ -911,7 +902,7 @@ app.post('/submit_post', urlencodedParser, function(req, res) {
 
 app.post('/submit_check_in', urlencodedParser, function(req, res) {
   console.log("Received check in");
-  var checkText = req.body.checkText;
+  var checkText = sqlProtect(req.body.checkText);
   var gardenerText = req.body.gardenerText;
 
   if (checkText.length > 0) {
@@ -934,7 +925,7 @@ app.post('/submit_check_in', urlencodedParser, function(req, res) {
 
 app.post('/submit_comment', urlencodedParser, function(req, res) {
   console.log("Received comment response");
-  var commentText = req.body.commentText;
+  var commentText = sqlProtect(req.body.commentText);
 
   if (commentText.length > 0) {
     var query = "INSERT INTO Comments (email, role, postId, commentText) VALUES ('" + cur_user + "', '" + cur_role + "', '" + cur_post + "', '" + commentText + "');";
@@ -1025,7 +1016,7 @@ app.post('/submit_comment', urlencodedParser, function(req, res) {
 app.post('/submit_survey_question', urlencodedParser, function(req, res) {
   console.log("Received survey question");
   console.log(req.body);
-  var question = req.body.question;
+  var question = sqlProtect(req.body.question);
   var targetUsers = req.body.targetUsers;
   var questionType = req.body.questionType;
   var success = true;
@@ -1182,7 +1173,7 @@ app.post('/delete_user', urlencodedParser, function(req, res) {
 app.post('/delete_survey',urlencodedParser,  function(req, res) {
   console.log("Received delete survey response");
   var id = req.body.delete_id;
-  var question = req.body.delete_question;
+  var question = sqlProtect(req.body.delete_question);
   console.log(req.body);
   var content = "New Survey: " + question;
   var query = "DELETE FROM Notifications WHERE content = '" + content + "';";
@@ -1262,3 +1253,9 @@ app.get('/pull_user_role_status', urlencodedParser, function(req, res){
       res.json(rows)
   });
 });
+
+function sqlProtect(string){
+  string = string.replace(/\'/g,"\'");
+  string = string.replace(/'/g,"\'\'");
+  return string
+}

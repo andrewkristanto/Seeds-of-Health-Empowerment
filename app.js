@@ -503,7 +503,7 @@ app.get('/pull_settings',urlencodedParser,  function(req, res) {
 
 app.get('/pull_survey_question', urlencodedParser, function(req, res){
   console.log("Pulling all survey questions");
-  con.query("SELECT question, qID FROM SurveyQuestions", function(err,rows) {
+  con.query("SELECT * FROM SurveyQuestions ORDER BY releaseDate DESC", function(err,rows) {
       if (err) throw err;
       console.log('Data received from Db:\n');
       console.log(rows);
